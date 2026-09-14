@@ -1,0 +1,14 @@
+{
+  "name": "comunicacao-maquinas",
+  "version": "1.0.0",
+  "description": "Aplicacao para comunicacao TCP/IP com maquinas",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "nodemon": "^3.1.14"
+  }
+}
