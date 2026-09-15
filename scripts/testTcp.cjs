@@ -3,6 +3,31 @@ const { test } = require('node:test');
 const { createServer } = require('node:net');
 const { once } = require('node:events');
 const { TcpService } = require('../dist/services/tcpService');
+const { TcpSession } = require('../dist/services/tcpSession');
+
+test('preserva a sessão entre telas e limpa somente o histórico', () => {
+    const session = new TcpSession();
+    session.state.options = { host: '127.0.0.1', port: 5000 };
+    session.record({ kind: 'status', message: 'Conectado', connected: true, time: new Date().toISOString() });
+    for (let i = 0; i < 205; i++) {
+        session.record({ kind: 'data', message: 'ok', hex: '6f6b', bytes: 2, connected: true, time: new Date().toISOString() });
+    }
+    // Uma tela nova recebe uma cópia da sessão pelo IPC.
+    const snapshot = structuredClone(session.state);
+    assert.equal(snapshot.events.length, 200);
+    assert.equal(snapshot.bytes, 410);
+    assert.equal(snapshot.busy, true);
+    assert.equal(snapshot.status, 'Conectado');
+    assert.equal(snapshot.options.port, 5000);
+    const cleared = session.clear();
+    assert.equal(cleared.events.length, 0);
+    assert.equal(cleared.bytes, 0);
+    assert.equal(cleared.busy, true);
+    assert.ok(cleared.sequence > snapshot.sequence);
+    session.record({ kind: 'data', message: 'ok', bytes: 2, connected: true, time: new Date().toISOString() });
+    assert.equal(session.state.bytes, 2);
+    assert.equal(session.state.events.length, 1);
+});
 
 test('recebe bytes sem perder dados e preserva UTF-8 dividido entre blocos', { timeout: 5000 }, async () => {
     const server = createServer();

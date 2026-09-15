@@ -21,7 +21,9 @@ TCP entrega um fluxo de bytes: cada registro é um bloco recebido, não necessar
 uma mensagem completa. O protocolo da máquina ainda precisa ser definido para
 interpretar esses dados. O painel da home continua usando valores simulados.
 
-Use **Desconectar** para encerrar a sessão. Sair da tela também encerra a conexão.
+Use **Desconectar** para encerrar a conexão. A navegação entre home e teste TCP
+preserva os campos, o histórico e a conexão, que continua recebendo dados.
+Fechar a janela encerra a conexão e descarta o histórico da sessão.
 O histórico fica apenas na memória, limitado a 200 registros, com prévia de até
 4 KB por bloco. **Limpar registros** também zera o contador de bytes.
 
@@ -58,6 +60,7 @@ src/
 ├── main/main.ts
 ├── preload/preload.ts
 ├── services/tcpService.ts
+├── services/tcpSession.ts
 ├── types/tcp.ts
 ├── renderer/
 │   ├── css/app.css

@@ -12,11 +12,26 @@ export interface TcpEvent {
     bytes?: number;
 }
 
+export interface TcpSessionEvent extends TcpEvent {
+    sequence: number;
+}
+
+export interface TcpSnapshot {
+    events: TcpSessionEvent[];
+    bytes: number;
+    sequence: number;
+    status: string;
+    busy: boolean;
+    options?: TcpOptions;
+}
+
 export interface TcpApi {
     connect(options: TcpOptions): Promise<void>;
     disconnect(): Promise<void>;
     saveLog(content: string): Promise<string | null>;
-    onEvent(callback: (event: TcpEvent) => void): () => void;
+    getState(): Promise<TcpSnapshot>;
+    clearLog(): Promise<TcpSnapshot>;
+    onEvent(callback: (event: TcpSessionEvent) => void): () => void;
 }
 
 declare global {

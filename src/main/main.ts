@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import { TcpService } from '../services/tcpService';
+import { TcpSession } from '../services/tcpSession';
 
 function createWindow() {
 
@@ -14,13 +15,16 @@ function createWindow() {
         }
     });
 
+    const session = new TcpSession();
     const tcp = new TcpService((event) => {
-        if (!window.isDestroyed()) window.webContents.send('tcp:event', event);
+        const entry = session.record(event);
+        if (!window.isDestroyed()) window.webContents.send('tcp:event', entry);
     });
     const connectChannel = 'tcp:connect';
     ipcMain.handle(connectChannel, (event, options) => {
         if (event.sender !== window.webContents) throw new Error('Janela inválida.');
         tcp.connect(options);
+        session.state.options = { host: options.host.trim(), port: options.port };
     });
     ipcMain.handle('tcp:disconnect', (event) => {
         if (event.sender !== window.webContents) throw new Error('Janela inválida.');
@@ -41,14 +45,21 @@ function createWindow() {
         await writeFile(result.filePath, content, 'utf8');
         return result.filePath;
     });
-    window.webContents.on('did-start-navigation', (_event, _url, isInPlace, isMainFrame) => {
-        if (isMainFrame && !isInPlace) tcp.disconnect();
+    ipcMain.handle('tcp:getState', (event) => {
+        if (event.sender !== window.webContents) throw new Error('Janela inválida.');
+        return session.state;
+    });
+    ipcMain.handle('tcp:clearLog', (event) => {
+        if (event.sender !== window.webContents) throw new Error('Janela inválida.');
+        return session.clear();
     });
     window.on('closed', () => {
         tcp.disconnect();
         ipcMain.removeHandler(connectChannel);
         ipcMain.removeHandler('tcp:disconnect');
         ipcMain.removeHandler('tcp:saveLog');
+        ipcMain.removeHandler('tcp:getState');
+        ipcMain.removeHandler('tcp:clearLog');
     });
 
     window.loadFile(

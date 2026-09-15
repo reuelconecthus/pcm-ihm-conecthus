@@ -13,6 +13,7 @@ src/
 ├── main/main.ts
 ├── preload/preload.ts
 ├── services/tcpService.ts
+├── services/tcpSession.ts
 ├── types/tcp.ts
 └── renderer/
     ├── views/home.html
@@ -29,7 +30,8 @@ scripts/
 | [views/tcp.html](../../src/renderer/views/tcp.html) | Define os campos de IP e porta, os botões e a área de registros. |
 | [js/tcp.ts](../../src/renderer/js/tcp.ts) | Captura os eventos da tela, solicita conexão e desconexão, atualiza o status e apresenta os dados recebidos. |
 | [preload.ts](../../src/preload/preload.ts) | Expõe `window.tcp` à interface usando `contextBridge`. Faz a ponte com o processo principal, sem expor o acesso direto ao socket. |
-| [main.ts](../../src/main/main.ts) | Cria o serviço TCP, recebe solicitações da interface e devolve eventos. Encerra a conexão ao navegar para outra página ou fechar a janela. |
+| [main.ts](../../src/main/main.ts) | Mantém o serviço e a sessão TCP durante a navegação, recebe solicitações e devolve eventos. Encerra a conexão ao fechar a janela. |
+| [tcpSession.ts](../../src/services/tcpSession.ts) | Guarda os últimos 200 registros, contador, parâmetros e status para restaurar a tela, inclusive os dados recebidos enquanto a home está aberta. |
 | [tcpService.ts](../../src/services/tcpService.ts) | Usa `Socket` do Node.js para conectar, receber bytes, tratar erros e desconectar. O limite para estabelecer a conexão é de 10 segundos. |
 | [types/tcp.ts](../../src/types/tcp.ts) | Define os tipos `TcpOptions`, `TcpEvent` e `TcpApi`, compartilhados entre as partes da aplicação. |
 | [testTcp.cjs](../../scripts/testTcp.cjs) | Testa o serviço com conexões locais, sem depender da máquina física ou abrir o Electron. |
@@ -52,6 +54,8 @@ IPC é a troca de mensagens entre os processos do Electron. Os canais usados sã
 | `tcp:connect` | A interface solicita uma conexão, passando `host` e `port`. |
 | `tcp:disconnect` | A interface solicita o encerramento da conexão. |
 | `tcp:event` | O processo principal informa mudanças de status e dados recebidos. |
+| `tcp:getState` | Recupera o histórico, contador e estado atual da conexão ao abrir a tela. |
+| `tcp:clearLog` | Limpa o histórico e o contador mantidos no processo principal, sem desconectar. |
 
 Ao clicar em **Conectar**, a tela chama `window.tcp.connect()`. O preload encaminha
 a solicitação ao processo principal, que chama `TcpService.connect()`.
@@ -98,7 +102,15 @@ ou após desconectar.
 
 A exportação captura os registros no momento do clique e respeita o limite da
 tela: até 200 registros e as prévias de blocos longos. Não é uma gravação contínua
-de todos os dados da sessão. Salve antes de limpar os registros ou sair da tela.
+de todos os dados da sessão. Salve antes de limpar os registros ou fechar o aplicativo.
+
+### Navegação entre telas
+
+Voltar à home mantém a conexão ativa. Ao retornar ao teste TCP, os campos,
+registros, contador e status são restaurados. Dados recebidos enquanto a home
+está aberta também entram no histórico. Os eventos têm uma sequência para evitar
+duplicações durante a restauração. Campos ainda não enviados são guardados no
+`sessionStorage` da janela. A persistência dura enquanto a janela estiver aberta.
 
 O botão chama `window.tcp.saveLog()`, exposto pelo preload. O canal IPC
 `tcp:saveLog` abre a janela de salvamento e grava o arquivo no processo principal.
@@ -114,12 +126,13 @@ npm.cmd run test:tcp
 O comando compila o projeto e executa `scripts/testTcp.cjs` com o executor de testes
 do Node.js. Os testes usam `127.0.0.1` e portas temporárias escolhidas pelo sistema.
 
-São verificados três cenários:
+São verificados quatro cenários:
 
 1. Recepção de bytes binários e de um caractere UTF-8 dividido entre blocos,
    incluindo o encerramento da conexão pelo servidor.
 2. Rejeição de endereço vazio e porta inválida.
 3. Comunicação de erro quando a conexão é recusada.
+4. Retenção do estado da sessão, limite de histórico e limpeza sem perder a conexão.
 
 Esses testes verificam o serviço TCP. Eles não validam a interface visual, a ponte
 IPC nem o protocolo ou a conexão com a máquina real.
