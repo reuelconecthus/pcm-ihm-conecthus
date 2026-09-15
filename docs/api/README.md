@@ -42,13 +42,18 @@ Nao execute ambos na mesma porta.
 
 ## Estrutura
 
-- `src/api/serialNumber/dtos/serialNumberRequestDto.ts`: DTO da entrada existente.
+- `src/modules/pcm/serialNumber/dtos/serialNumberRequestDto.ts`: DTO da entrada existente.
 - `src/api/dtos/apiResponseDto.ts`: DTO das respostas.
-- `src/api/serialNumber/serialNumber.ts`: validacao em tempo de execucao.
-- `src/api/serialNumber/serialNumberRoutes.ts`: endpoint de bipagem e persistencia.
-- `src/api/pcmEntry/pcmEntry.ts`: contrato do repositorio e erro de duplicidade.
-- `src/api/pcmEntry/mysqlPcmEntryRepository.ts`: INSERT parametrizado.
-- `src/api/database/mysql.ts`: configuracao e pool MySQL.
+- `src/modules/pcm/serialNumber/serialNumber.ts`: validacao em tempo de execucao.
+- `src/modules/pcm/serialNumber/serialNumberRoutes.ts`: endpoint e respostas HTTP.
+- `src/modules/pcm/serialNumber/serialNumberService.ts`: valida a bipagem e solicita a persistencia.
+- `src/modules/pcm/serialNumber/invalidSerialNumberError.ts`: erro de validacao da leitura.
+- `src/modules/pcm/pcmEntryContract.ts`: contrato do repositorio.
+- `src/modules/pcm/duplicateSerialError.ts`: erro de duplicidade.
+- `src/modules/pcm/pcmEntryRepository.ts`: INSERT parametrizado.
+- `src/database/mysql.ts`: configuracao e pool MySQL.
+- `src/database/migrateMysql.cjs`: executor das migrations.
+- `src/database/migrations/`: scripts SQL versionados.
 
 O corpo HTTP permanece `unknown` ate passar pela validacao. DTOs nao substituem
 essa validacao. O publicador Kafka antigo permanece fora do fluxo de execucao.

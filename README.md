@@ -75,13 +75,23 @@ mantêm as convenções das respectivas tecnologias.
 
 ## Estrutura do projeto
 
+Os módulos são agrupados por responsabilidade:
+
+- `src/modules/pcm/`: bipagem, DTO de entrada, contrato e implementação do repositório PCM.
+- `src/modules/tcp/`: serviço, sessão e tipos de comunicação TCP.
+- `src/database/`: conexão MySQL, executor e arquivos de migrations.
+- `src/api/`: servidor HTTP, registro das rotas e respostas compartilhadas.
+- `src/renderer/modules/inspection/`: módulo visual de inspeção independente por máquina.
+
+O adaptador Kafka existente pertence à bipagem e permanece sem uso no fluxo atual.
+
 ```text
 src/
 ├── main/main.ts
 ├── preload/preload.ts
-├── services/tcpService.ts
-├── services/tcpSession.ts
-├── types/tcp.ts
+├── modules/tcp/tcpService.ts
+├── modules/tcp/tcpSession.ts
+├── modules/tcp/tcp.ts
 ├── renderer/
 │   ├── css/app.css
 │   ├── js/

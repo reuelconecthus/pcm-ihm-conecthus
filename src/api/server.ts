@@ -1,13 +1,13 @@
 ﻿import { createServer } from 'node:http';
 import { createApp } from './app';
 import { readHttpConfig } from './config';
-import { createMysqlPool } from './database/mysql';
-import { MysqlPcmEntryRepository } from './pcmEntry/mysqlPcmEntryRepository';
+import { createMysqlPool } from '../database/mysql';
+import { PcmEntryRepository } from '../modules/pcm/pcmEntryRepository';
 
 export async function startApi(config = readHttpConfig()) {
     // Sem configuração, o endpoint retorna 503; nunca confirma uma gravação fictícia.
     const pool = process.env.MYSQL_HOST ? createMysqlPool() : undefined;
-    const entries = pool ? new MysqlPcmEntryRepository(pool) : undefined;
+    const entries = pool ? new PcmEntryRepository(pool) : undefined;
     const server = createServer(createApp(entries));
     server.requestTimeout = 15000;
     server.headersTimeout = 10000;

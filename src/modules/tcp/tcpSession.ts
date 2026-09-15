@@ -1,4 +1,4 @@
-import type { TcpEvent, TcpSessionEvent, TcpSnapshot } from '../types/tcp';
+import type { TcpEvent, TcpSessionEvent, TcpSnapshot } from './tcp';
 
 // A sessão vive no processo principal, mesmo quando a tela TCP está fechada.
 export class TcpSession {

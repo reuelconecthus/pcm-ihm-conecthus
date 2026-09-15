@@ -1,7 +1,8 @@
 import type { Pool } from 'mysql2/promise';
-import { DuplicateSerialError, type PcmEntryRepository } from './pcmEntry';
+import type { PcmEntryContract } from './pcmEntryContract';
+import { DuplicateSerialError } from './duplicateSerialError';
 
-export class MysqlPcmEntryRepository implements PcmEntryRepository {
+export class PcmEntryRepository implements PcmEntryContract {
     constructor(private readonly pool: Pick<Pool, 'execute'>) {}
     async insert(serialNumber: string): Promise<void> {
         try {

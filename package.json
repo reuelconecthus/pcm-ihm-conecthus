@@ -10,7 +10,7 @@
     "test:tcp": "npm run build && node --test scripts/testTcp.cjs",
     "test:api": "npm run build && node --test scripts/testApi.cjs",
     "test:pcm": "npm run build && node --test scripts/testPcmEntry.cjs",
-    "db:migrate": "npm run build && node --env-file-if-exists=.env scripts/migrateMysql.cjs",
+    "db:migrate": "npm run build && node --env-file-if-exists=.env dist/database/migrateMysql.cjs",
     "test:inspection": "npm run build && node --test scripts/testInspection.cjs",
     "start:api": "npm run build && node --env-file-if-exists=.env dist/api/server.js",
     "start": "npm run build && electron .",

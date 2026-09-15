@@ -1,8 +1,8 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
-import { TcpService } from '../services/tcpService';
-import { TcpSession } from '../services/tcpSession';
+import { TcpService } from '../modules/tcp/tcpService';
+import { TcpSession } from '../modules/tcp/tcpSession';
 import { startApi } from '../api/server';
 import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';

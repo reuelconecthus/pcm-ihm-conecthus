@@ -2,17 +2,18 @@ import express = require('express');
 import type { ErrorRequestHandler, RequestHandler } from 'express';
 import type { ApiResponseDto } from './dtos/apiResponseDto';
 
-import { createSerialNumberRoutes } from './serialNumber/serialNumberRoutes';
-import type { PcmEntryRepository } from './pcmEntry/pcmEntry';
+import { createSerialNumberRoutes } from '../modules/pcm/serialNumber/serialNumberRoutes';
+import type { PcmEntryContract } from '../modules/pcm/pcmEntryContract';
+import { SerialNumberService } from '../modules/pcm/serialNumber/serialNumberService';
 
-export function createApp(entries: PcmEntryRepository = {
+export function createApp(entries: PcmEntryContract = {
     insert: async () => { throw new Error('MySQL não configurado.'); }
 }) {
     const app = express();
     app.disable('x-powered-by');
     app.use(express.json({ limit: '4kb', strict: false }));
 
-    app.use('/api/serial-numbers', createSerialNumberRoutes(entries));
+    app.use('/api/serial-numbers', createSerialNumberRoutes(new SerialNumberService(entries)));
 
     const notFound: RequestHandler<Record<string, string>, ApiResponseDto, unknown> = (_req, res) => {
         res.status(404).json({ status: 'ERROR', msg: 'Rota não encontrada.' });

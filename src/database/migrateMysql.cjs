@@ -1,6 +1,6 @@
 const { readFileSync } = require('node:fs');
 const path = require('node:path');
-const { createMysqlPool } = require('../dist/api/database/mysql');
+const { createMysqlPool } = require('./mysql');
 
 async function migrate() {
     const pool = createMysqlPool();
@@ -18,7 +18,7 @@ async function migrate() {
         const [applied] = await connection.execute('SELECT name FROM pcm_schema_migrations WHERE name = ?', [name]);
         if (applied.length) { console.log('Migration já aplicada:', name); return; }
         // DDL MySQL faz commit implícito. A migration é idempotente para permitir retomada.
-        await connection.query(readFileSync(path.join(__dirname, '../database/migrations', name), 'utf8'));
+        await connection.query(readFileSync(path.join(__dirname, 'migrations', name), 'utf8'));
         await connection.execute('INSERT INTO pcm_schema_migrations (name, applied_at) VALUES (?, UTC_TIMESTAMP(3))', [name]);
         console.log('Migration aplicada:', name);
     } finally {

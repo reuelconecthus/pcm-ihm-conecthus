@@ -12,9 +12,9 @@ Os caminhos abaixo partem da raiz do projeto.
 src/
 ├── main/main.ts
 ├── preload/preload.ts
-├── services/tcpService.ts
-├── services/tcpSession.ts
-├── types/tcp.ts
+├── modules/tcp/tcpService.ts
+├── modules/tcp/tcpSession.ts
+├── modules/tcp/tcp.ts
 └── renderer/
     ├── views/home.html
     ├── views/tcp.html
@@ -31,9 +31,9 @@ scripts/
 | [js/tcp.ts](../../src/renderer/js/tcp.ts) | Captura os eventos da tela, solicita conexão e desconexão, atualiza o status e apresenta os dados recebidos. |
 | [preload.ts](../../src/preload/preload.ts) | Expõe `window.tcp` à interface usando `contextBridge`. Faz a ponte com o processo principal, sem expor o acesso direto ao socket. |
 | [main.ts](../../src/main/main.ts) | Mantém o serviço e a sessão TCP durante a navegação, recebe solicitações e devolve eventos. Encerra a conexão ao fechar a janela. |
-| [tcpSession.ts](../../src/services/tcpSession.ts) | Guarda os últimos 200 registros, contador, parâmetros e status para restaurar a tela, inclusive os dados recebidos enquanto a home está aberta. |
-| [tcpService.ts](../../src/services/tcpService.ts) | Usa `Socket` do Node.js para conectar, receber bytes, tratar erros e desconectar. O limite para estabelecer a conexão é de 10 segundos. |
-| [types/tcp.ts](../../src/types/tcp.ts) | Define os tipos `TcpOptions`, `TcpEvent` e `TcpApi`, compartilhados entre as partes da aplicação. |
+| [tcpSession.ts](../../src/modules/tcp/tcpSession.ts) | Guarda os últimos 200 registros, contador, parâmetros e status para restaurar a tela, inclusive os dados recebidos enquanto a home está aberta. |
+| [tcpService.ts](../../src/modules/tcp/tcpService.ts) | Usa `Socket` do Node.js para conectar, receber bytes, tratar erros e desconectar. O limite para estabelecer a conexão é de 10 segundos. |
+| [modules/tcp/tcp.ts](../../src/modules/tcp/tcp.ts) | Define os tipos `TcpOptions`, `TcpEvent` e `TcpApi`, compartilhados entre as partes da aplicação. |
 | [testTcp.cjs](../../scripts/testTcp.cjs) | Testa o serviço com conexões locais, sem depender da máquina física ou abrir o Electron. |
 | [copyAssets.cjs](../../scripts/copyAssets.cjs) | Copia HTML, CSS e demais arquivos da interface para `dist` após a compilação do TypeScript. |
 
@@ -151,8 +151,8 @@ IPC nem o protocolo ou a conexão com a máquina real.
 
 - **Layout e campos:** `src/renderer/views/tcp.html`.
 - **Exibição dos dados e ações dos botões:** `src/renderer/js/tcp.ts`.
-- **Conexão e tratamento dos bytes:** `src/services/tcpService.ts`.
-- **Novas operações disponíveis à interface:** tipos em `src/types/tcp.ts`,
+- **Conexão e tratamento dos bytes:** `src/modules/tcp/tcpService.ts`.
+- **Novas operações disponíveis à interface:** tipos em `src/modules/tcp/tcp.ts`,
   ponte em `src/preload/preload.ts` e handlers em `src/main/main.ts`.
 - **Novos cenários de validação do serviço:** `scripts/testTcp.cjs`.
 

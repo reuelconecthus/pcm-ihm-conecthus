@@ -17,7 +17,7 @@ MYSQL_USER=pcm_app
 MYSQL_PASSWORD=sua_senha
 ```
 
-Execute `npm run db:migrate`. A migration `database/migrations/001PcmLineEntries.sql`
+Execute `npm run db:migrate`. A migration `src/database/migrations/001PcmLineEntries.sql`
 cria `pcm_line_entries`; o executor registra a versão em `pcm_schema_migrations`.
 Reexecuções não apagam registros. É necessário permissão de criação de tabelas
 para migrar; a execução normal do endpoint precisa de INSERT na tabela de entradas.
