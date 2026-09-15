@@ -5,30 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PCM - Teste TCP</title>
     <link rel="stylesheet" href="../vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/tcp.css">
     <script src="../js/tcp.js" defer></script>
 </head>
-<body class="bg-dark text-light">
-    <main class="container py-4">
-        <a href="home.html" class="btn btn-outline-light mb-3">Voltar à home</a>
-        <h1>Teste de comunicação TCP</h1>
-        <form id="tcp-form" class="row g-3 mb-3">
-            <div class="col-sm-7">
-                <label for="host" class="form-label">IP ou endereço da máquina</label>
-                <input id="host" class="form-control" required placeholder="192.168.0.10">
-            </div>
-            <div class="col-sm-5">
-                <label for="port" class="form-label">Porta TCP</label>
-                <input id="port" class="form-control" type="number" min="1" max="65535" required placeholder="5000">
-            </div>
-            <div class="col-12 d-flex gap-2">
-                <button id="connect" class="btn btn-success" type="submit">Conectar</button>
-                <button id="disconnect" class="btn btn-warning" type="button" disabled>Desconectar</button>
-                <button id="clear" class="btn btn-secondary" type="button">Limpar registros</button>
-            </div>
-        </form>
-        <p id="tcp-status" role="status">Desconectado.</p>
-        <p>Recebidos: <span id="byte-count">0</span> bytes</p>
-        <div id="tcp-log" class="border rounded p-3 bg-black" style="height: 45vh; overflow: auto;" aria-label="Dados recebidos"></div>
-    </main>
+<body>
+    <div class="tcp-layout">
+        <header class="top-bar">
+            <h1>PCM - GRINDING MACHINE</h1>
+            <span>TESTE TCP/IP</span>
+        </header>
+
+        <main class="main-content">
+            <aside class="side-panel" aria-labelledby="connection-title">
+                <h2 id="connection-title" class="section-title">CONEXÃO</h2>
+                <form id="tcp-form">
+                    <div class="mb-3">
+                        <label for="host" class="form-label">IP OU ENDEREÇO</label>
+                        <input id="host" class="form-control" required placeholder="192.168.0.10">
+                    </div>
+                    <div class="mb-4">
+                        <label for="port" class="form-label">PORTA TCP</label>
+                        <input id="port" class="form-control" type="number" min="1" max="65535" required placeholder="5000">
+                    </div>
+                    <button id="connect" class="btn btn-success machine-btn" type="submit">CONECTAR</button>
+                    <button id="disconnect" class="btn btn-warning machine-btn" type="button" disabled>DESCONECTAR</button>
+                    <button id="clear" class="btn btn-secondary machine-btn" type="button">LIMPAR REGISTROS</button>
+                </form>
+                <div class="status-box">
+                    <span class="info-label">STATUS DA CONEXÃO</span>
+                    <p id="tcp-status" role="status">Desconectado.</p>
+                </div>
+            </aside>
+
+            <section class="machine-panel" aria-labelledby="monitor-title">
+                <h2 id="monitor-title" class="machine-header">MONITORAMENTO TCP/IP</h2>
+                <div class="info-area">
+                    <div class="value-card">
+                        <span class="info-label">DADOS RECEBIDOS</span>
+                        <div class="digital-display"><span id="byte-count">0</span> <span class="unit">bytes</span></div>
+                    </div>
+                    <div class="info-card">
+                        <span class="info-label">MODO DE COMUNICAÇÃO</span>
+                        <strong>CLIENTE TCP</strong>
+                        <span>Recepção de dados da máquina</span>
+                    </div>
+                </div>
+                <h3 class="log-title">REGISTROS RECEBIDOS</h3>
+                <div id="tcp-log" class="tcp-log" tabindex="0" aria-label="Dados recebidos"></div>
+            </section>
+        </main>
+
+        <footer class="bottom-nav">
+            <a href="home.html" class="nav-button">HOME</a>
+            <a href="tcp.html" class="nav-button active" aria-current="page">TESTE TCP</a>
+        </footer>
+    </div>
 </body>
 </html>
