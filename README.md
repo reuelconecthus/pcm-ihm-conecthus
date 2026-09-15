@@ -9,15 +9,59 @@ Com a API iniciada, a documentação interativa está em
 npm.cmd test
 ```
 
-Compila o projeto e executa as suítes de API, entrada PCM, TCP e inspeção.
-Os comandos `test:api`, `test:pcm`, `test:tcp` e `test:inspection` continuam
-disponíveis para executar cada suíte separadamente.
+Compila o projeto e executa as suítes de API, entrada PCM, Kafka, TCP e inspeção.
+Os comandos `test:api`, `test:pcm`, `test:kafka`, `test:tcp` e `test:inspection`
+continuam disponíveis para executar cada suíte separadamente.
 
 ## Entrada da linha PCM
 
 A API `POST /api/serial-numbers` registra o serial no MySQL e rejeita duplicidades.
-Configure o banco no `.env` e execute `npm run db:migrate`.
+Configure o banco no `.env` (veja `.env.example`) e execute `npm run db:migrate`.
 Veja o [fluxo de entrada PCM](docs/api/pcmEntry.md).
+
+### Subir MySQL e Kafka com Docker
+
+```powershell
+copy .env.example .env
+npm.cmd run infra:up
+npm.cmd run db:migrate
+```
+
+`infra:up` sobe todos os serviços de `docker-compose.yml`: `pcm-mysql` (imagem `mysql:8.0`,
+dados no volume `pcm_mysql_data`) e `pcm-kafka` (imagem `apache/kafka:3.8.0`, modo KRaft
+sem Zookeeper, dados no volume `pcm_kafka_data`), publicado em `KAFKA_BROKERS=localhost:9092`.
+Use `npm.cmd run db:up` ou `npm.cmd run kafka:up` para subir só um dos dois.
+As credenciais/portas vêm do `.env` na raiz (lido automaticamente pelo `docker compose`);
+sem ele, valores padrão de desenvolvimento são usados.
+`db:logs`/`kafka:logs` acompanham o log de cada container e `infra:down` encerra tudo.
+
+O fluxo de entrada ativo (`POST /api/serial-numbers`) grava direto no MySQL e mantém o
+Kafka desativado (veja o log de inicialização da API); o container Kafka existe para o
+produtor/consumidor independentes descritos a seguir.
+
+## Produtor e consumidor Kafka
+
+Veja a [documentação do módulo Kafka](docs/kafka/README.md) para os detalhes do produtor,
+do consumidor e das mensagens trocadas.
+
+Com a infraestrutura no ar (`npm.cmd run infra:up` ou `npm.cmd run kafka:up`), publique
+uma mensagem:
+
+```powershell
+npm.cmd run kafka:produce -- "mensagem de teste" chave-opcional
+```
+
+E consuma em outro terminal (fica escutando até `Ctrl+C`):
+
+```powershell
+npm.cmd run kafka:consume
+```
+
+Cada mensagem recebida é logada no console com tópico, partição, offset, chave, valor
+e horário. `KAFKA_BROKERS` e `KAFKA_TOPIC` no `.env` definem o broker e o tópico; ambos
+os comandos usam o mesmo tópico, então uma mensagem publicada aparece no consumidor
+que estiver rodando. Esse par é independente do fluxo de entrada da linha PCM — não
+altera o endpoint HTTP nem o que é gravado no MySQL.
 
 ## Inspeção visual
 
@@ -93,12 +137,15 @@ Os módulos são agrupados por responsabilidade:
 - `src/modules/pcm/entry/`: fluxo de entrada do produto, com rotas, service, validação,
   DTO, contrato, repositório e erros específicos em subpastas por responsabilidade.
 - `src/modules/tcp/`: serviço, sessão e tipos de comunicação TCP.
+- `src/modules/kafka/`: configuração e services (produtor/consumidor) genéricos de Kafka,
+  usados pelos entrypoints em `src/kafka/` (veja [docs/kafka](docs/kafka/README.md)).
 - `src/database/`: conexão MySQL, executor e arquivos de migrations.
 - `src/api/`: servidor HTTP, registro das rotas e respostas compartilhadas.
   Os tratamentos HTTP comuns ficam em `middlewares/`.
 - `src/renderer/modules/inspection/`: módulo visual de inspeção independente por máquina.
 
-O adaptador Kafka existente pertence à bipagem e permanece sem uso no fluxo atual.
+O adaptador Kafka em `src/modules/pcm/entry/integrations/` pertence à bipagem e permanece
+sem uso no fluxo atual; é um código distinto do módulo `src/modules/kafka/`.
 
 ```text
 src/
