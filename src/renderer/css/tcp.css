@@ -175,7 +175,6 @@ body {
 }
 
 .tcp-log:empty::before {
-    content: "Os registros da conexão aparecerão aqui.";
     color: #bfc3c7;
 }
 
