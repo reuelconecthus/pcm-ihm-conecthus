@@ -18,7 +18,7 @@
         alert('PARADA SOLICITADA!');
     }
 
-    function navigateTo(page) {
+    function navigateTo(page: string) {
         // Avisa qual tela foi escolhida no menu.
         // Quem escutar o evento home:navigate poderá carregar a tela indicada em detail.page.
         document.dispatchEvent(new CustomEvent('home:navigate', {
@@ -27,23 +27,27 @@
     }
 
     function initializeHome() {
-        const commandHandlers = {
+        const commandHandlers: Record<string, (() => void) | undefined> = {
             start: startMachine,
             stop: stopMachine,
             reset: resetMachine,
             emergency: emergencyStop
         };
 
-        document.querySelectorAll('[data-command]').forEach((button) => {
-            const handler = commandHandlers[button.dataset.command];
+        document.querySelectorAll<HTMLButtonElement>('[data-command]').forEach((button) => {
+            const command = button.dataset.command;
+            const handler = command ? commandHandlers[command] : undefined;
 
             if (typeof handler === 'function') {
                 button.addEventListener('click', handler);
             }
         });
 
-        document.querySelectorAll('[data-page]').forEach((button) => {
-            button.addEventListener('click', () => navigateTo(button.dataset.page));
+        document.querySelectorAll<HTMLButtonElement>('[data-page]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const page = button.dataset.page;
+                if (page) navigateTo(page);
+            });
         });
 
         // Simula as leituras enquanto os dados reais da máquina não estão disponíveis.
