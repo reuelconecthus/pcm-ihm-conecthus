@@ -8,12 +8,12 @@ function createWindow() {
         height: 700,
 
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, '../preload/preload.js')
         }
     });
 
     window.loadFile(
-        path.join(__dirname, 'index.html')
+        path.join(__dirname, '../index.html')
     );
 }
 
@@ -37,4 +37,4 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 
-});
+}); 
