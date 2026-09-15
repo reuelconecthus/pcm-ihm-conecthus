@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { TcpApi, TcpEvent } from '../shared/tcp';
+import type { TcpApi, TcpEvent } from '../types/tcp';
 
 const tcp: TcpApi = {
     connect: (options) => ipcRenderer.invoke('tcp:connect', options),

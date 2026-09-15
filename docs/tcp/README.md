@@ -13,7 +13,7 @@ src/
 ├── main/main.ts
 ├── preload/preload.ts
 ├── services/tcpService.ts
-├── shared/tcp.ts
+├── types/tcp.ts
 └── renderer/
     ├── views/home.html
     ├── views/tcp.html
@@ -31,7 +31,7 @@ scripts/
 | [preload.ts](../../src/preload/preload.ts) | Expõe `window.tcp` à interface usando `contextBridge`. Faz a ponte com o processo principal, sem expor o acesso direto ao socket. |
 | [main.ts](../../src/main/main.ts) | Cria o serviço TCP, recebe solicitações da interface e devolve eventos. Encerra a conexão ao navegar para outra página ou fechar a janela. |
 | [tcpService.ts](../../src/services/tcpService.ts) | Usa `Socket` do Node.js para conectar, receber bytes, tratar erros e desconectar. O limite para estabelecer a conexão é de 10 segundos. |
-| [shared/tcp.ts](../../src/shared/tcp.ts) | Define os tipos `TcpOptions`, `TcpEvent` e `TcpApi`, compartilhados entre as partes da aplicação. |
+| [types/tcp.ts](../../src/types/tcp.ts) | Define os tipos `TcpOptions`, `TcpEvent` e `TcpApi`, compartilhados entre as partes da aplicação. |
 | [testTcp.cjs](../../scripts/testTcp.cjs) | Testa o serviço com conexões locais, sem depender da máquina física ou abrir o Electron. |
 | [copyAssets.cjs](../../scripts/copyAssets.cjs) | Copia HTML, CSS e demais arquivos da interface para `dist` após a compilação do TypeScript. |
 
@@ -125,7 +125,7 @@ IPC nem o protocolo ou a conexão com a máquina real.
 - **Layout e campos:** `src/renderer/views/tcp.html`.
 - **Exibição dos dados e ações dos botões:** `src/renderer/js/tcp.ts`.
 - **Conexão e tratamento dos bytes:** `src/services/tcpService.ts`.
-- **Novas operações disponíveis à interface:** tipos em `src/shared/tcp.ts`,
+- **Novas operações disponíveis à interface:** tipos em `src/types/tcp.ts`,
   ponte em `src/preload/preload.ts` e handlers em `src/main/main.ts`.
 - **Novos cenários de validação do serviço:** `scripts/testTcp.cjs`.
 

@@ -58,7 +58,7 @@ src/
 ├── main/main.ts
 ├── preload/preload.ts
 ├── services/tcpService.ts
-├── shared/tcp.ts
+├── types/tcp.ts
 ├── renderer/
 │   ├── css/app.css
 │   ├── js/
