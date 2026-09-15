@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const { test } = require('node:test');
 const { once } = require('node:events');
 const { createApp } = require('../dist/api/app');
-const { PcmEntryRepository } = require('../dist/modules/pcm/pcmEntryRepository');
+const { EntryRepository } = require('../dist/modules/pcm/entry/repositories/entryRepository');
 const { readMysqlConfig } = require('../dist/database/mysql');
 
 async function serve(t, repository) {
@@ -17,7 +17,7 @@ async function serve(t, repository) {
 test('só confirma após persistir e usa parâmetro SQL preservando o serial', async t => {
     let confirm, notify;
     const entered = new Promise(resolve => { notify = resolve; });
-    const post = await serve(t, new PcmEntryRepository({ execute: async (sql, args) => {
+    const post = await serve(t, new EntryRepository({ execute: async (sql, args) => {
         assert.match(sql, /VALUES \(\?, UTC_TIMESTAMP\(3\)\)/);
         assert.equal(args[0].toString('utf8'), "AbC'123");
         notify(); await new Promise(resolve => { confirm = resolve; });
@@ -32,7 +32,7 @@ test('só confirma após persistir e usa parâmetro SQL preservando o serial', a
 });
 
 test('serial duplicado retorna 409', async t => {
-    const post = await serve(t, new PcmEntryRepository({ execute: async () => {
+    const post = await serve(t, new EntryRepository({ execute: async () => {
         throw Object.assign(new Error('internal details'), { code: 'ER_DUP_ENTRY' });
     } }));
     const response = await post({ 'serial-number': 'abc' });

@@ -1,6 +1,6 @@
 import { Socket } from 'node:net';
 import { StringDecoder } from 'node:string_decoder';
-import type { TcpEvent, TcpOptions } from './tcp';
+import type { TcpEvent, TcpOptions } from '../types/tcpTypes';
 
 export class TcpService {
     private socket?: Socket;

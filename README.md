@@ -77,10 +77,12 @@ mantêm as convenções das respectivas tecnologias.
 
 Os módulos são agrupados por responsabilidade:
 
-- `src/modules/pcm/`: bipagem, DTO de entrada, contrato e implementação do repositório PCM.
+- `src/modules/pcm/entry/`: fluxo de entrada do produto, com rotas, service, validação,
+  DTO, contrato, repositório e erros específicos em subpastas por responsabilidade.
 - `src/modules/tcp/`: serviço, sessão e tipos de comunicação TCP.
 - `src/database/`: conexão MySQL, executor e arquivos de migrations.
 - `src/api/`: servidor HTTP, registro das rotas e respostas compartilhadas.
+  Os tratamentos HTTP comuns ficam em `middlewares/`.
 - `src/renderer/modules/inspection/`: módulo visual de inspeção independente por máquina.
 
 O adaptador Kafka existente pertence à bipagem e permanece sem uso no fluxo atual.
@@ -89,9 +91,9 @@ O adaptador Kafka existente pertence à bipagem e permanece sem uso no fluxo atu
 src/
 ├── main/main.ts
 ├── preload/preload.ts
-├── modules/tcp/tcpService.ts
-├── modules/tcp/tcpSession.ts
-├── modules/tcp/tcp.ts
+├── modules/tcp/services/tcpService.ts
+├── modules/tcp/sessions/tcpSession.ts
+├── modules/tcp/types/tcpTypes.ts
 ├── renderer/
 │   ├── css/app.css
 │   ├── js/

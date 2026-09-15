@@ -42,15 +42,21 @@ Nao execute ambos na mesma porta.
 
 ## Estrutura
 
-- `src/modules/pcm/serialNumber/dtos/serialNumberRequestDto.ts`: DTO da entrada existente.
+O módulo `src/modules/pcm/entry` organiza cada responsabilidade em `routes`,
+`services`, `repositories`, `validators`, `errors`, `dtos` e `integrations`.
+A pasta `integrations` também contém `kafkaConfig.ts` e `serialPublisher.ts`,
+preservados sem uso no fluxo atual. A configuração HTTP permanece em `src/api/config.ts`.
+Os tratamentos HTTP compartilhados estão em `src/api/middlewares/httpErrors.ts`.
+
+- `src/modules/pcm/entry/dtos/entryRequestDto.ts`: DTO da entrada existente.
 - `src/api/dtos/apiResponseDto.ts`: DTO das respostas.
-- `src/modules/pcm/serialNumber/serialNumber.ts`: validacao em tempo de execucao.
-- `src/modules/pcm/serialNumber/serialNumberRoutes.ts`: endpoint e respostas HTTP.
-- `src/modules/pcm/serialNumber/serialNumberService.ts`: valida a bipagem e solicita a persistencia.
-- `src/modules/pcm/serialNumber/invalidSerialNumberError.ts`: erro de validacao da leitura.
-- `src/modules/pcm/pcmEntryContract.ts`: contrato do repositorio.
-- `src/modules/pcm/duplicateSerialError.ts`: erro de duplicidade.
-- `src/modules/pcm/pcmEntryRepository.ts`: INSERT parametrizado.
+- `src/modules/pcm/entry/validators/entryValidation.ts`: validacao em tempo de execucao.
+- `src/modules/pcm/entry/routes/entryRoutes.ts`: endpoint e respostas HTTP.
+- `src/modules/pcm/entry/services/entryService.ts`: valida a bipagem e solicita a persistencia.
+- `src/modules/pcm/entry/errors/invalidEntryError.ts`: erro de validacao da leitura.
+- `src/modules/pcm/entry/repositories/entryContract.ts`: contrato do repositorio.
+- `src/modules/pcm/entry/errors/duplicateSerialError.ts`: erro de duplicidade.
+- `src/modules/pcm/entry/repositories/entryRepository.ts`: INSERT parametrizado.
 - `src/database/mysql.ts`: configuracao e pool MySQL.
 - `src/database/migrateMysql.cjs`: executor das migrations.
 - `src/database/migrations/`: scripts SQL versionados.

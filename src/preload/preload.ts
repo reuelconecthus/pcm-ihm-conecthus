@@ -1,7 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { TcpApi, TcpSessionEvent } from '../modules/tcp/tcp';
+import type { TcpApiContract } from '../modules/tcp/contracts/tcpApiContract';
+import type { TcpSessionEvent } from '../modules/tcp/types/tcpTypes';
 
-const tcp: TcpApi = {
+const tcp: TcpApiContract = {
     connect: (options) => ipcRenderer.invoke('tcp:connect', options),
     disconnect: () => ipcRenderer.invoke('tcp:disconnect'),
     saveLog: (content) => ipcRenderer.invoke('tcp:saveLog', content),

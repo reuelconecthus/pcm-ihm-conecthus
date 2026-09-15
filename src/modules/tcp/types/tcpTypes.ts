@@ -24,18 +24,3 @@ export interface TcpSnapshot {
     busy: boolean;
     options?: TcpOptions;
 }
-
-export interface TcpApi {
-    connect(options: TcpOptions): Promise<void>;
-    disconnect(): Promise<void>;
-    saveLog(content: string): Promise<string | null>;
-    getState(): Promise<TcpSnapshot>;
-    clearLog(): Promise<TcpSnapshot>;
-    onEvent(callback: (event: TcpSessionEvent) => void): () => void;
-}
-
-declare global {
-    interface Window {
-        tcp: TcpApi;
-    }
-}

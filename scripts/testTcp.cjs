@@ -2,8 +2,8 @@ const assert = require('node:assert/strict');
 const { test } = require('node:test');
 const { createServer } = require('node:net');
 const { once } = require('node:events');
-const { TcpService } = require('../dist/modules/tcp/tcpService');
-const { TcpSession } = require('../dist/modules/tcp/tcpSession');
+const { TcpService } = require('../dist/modules/tcp/services/tcpService');
+const { TcpSession } = require('../dist/modules/tcp/sessions/tcpSession');
 
 test('preserva a sessão entre telas e limpa somente o histórico', () => {
     const session = new TcpSession();
