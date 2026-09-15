@@ -4,6 +4,32 @@ const { once } = require('node:events');
 const { createApp } = require('../dist/api/app');
 const { startApi } = require('../dist/api/server');
 
+test('Swagger e especificação ficam disponíveis sem acessar o banco', async t => {
+    const server = createApp({ insert: async () => assert.fail('Não deve gravar') }).listen(0, '127.0.0.1');
+    await once(server, 'listening');
+    t.after(() => new Promise(resolve => server.close(resolve)));
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const response = await fetch(base + '/api-docs/openapi.json');
+    assert.equal(response.status, 200);
+    const spec = await response.json();
+    assert.equal(spec.openapi, '3.0.3');
+    assert.equal(spec.servers[0].url, '/');
+    const endpoint = spec.paths['/api/serial-numbers'].post;
+    for (const status of ['200', '400', '409', '413', '415', '500', '503']) assert.ok(endpoint.responses[status]);
+    assert.equal(spec.info.title, 'API PCM');
+    assert.equal(spec.components.schemas.EntryRequestDto.oneOf.length, 2);
+    assert.equal(spec.components.schemas.ApiResponseDto.oneOf.length, 2);
+    assert.equal(endpoint.requestBody.content['application/json'].schema.$ref, '#/components/schemas/EntryRequestDto');
+    const page = await fetch(base + '/api-docs/');
+    assert.equal(page.status, 200);
+    assert.match(await page.text(), /swagger-ui/);
+    for (const asset of ['swagger-ui.css', 'swagger-ui-bundle.js', 'swagger-ui-init.js']) {
+        const result = await fetch(base + '/api-docs/' + asset);
+        assert.equal(result.status, 200);
+        assert.ok((await result.text()).length > 0);
+    }
+});
+
 async function serve(t, repository) {
     const server = createApp(repository).listen(0, '127.0.0.1');
     await once(server, 'listening');

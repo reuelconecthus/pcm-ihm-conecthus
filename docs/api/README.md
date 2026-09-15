@@ -1,4 +1,22 @@
-﻿# API de bipagem: serial ou QR code
+# API PCM
+
+## Swagger
+
+Inicie `npm run start:api` ou `npm run dev` e abra
+[Swagger UI](http://127.0.0.1:3000/api-docs/).
+O documento está disponível em [OpenAPI JSON](http://127.0.0.1:3000/api-docs/openapi.json).
+Se alterar host ou porta, use o endereço configurado. Funciona também com a API
+iniciada pelo Electron; os arquivos visuais são servidos localmente, sem CDN.
+
+Use **Try it out**, escolha o exemplo de serial ou QR e clique em **Execute**.
+A operação chama a API real e grava no banco quando configurado. A consulta à
+documentação funciona sem MySQL.
+
+A especificação central fica em `src/api/docs/openApi.ts`, e a documentação do
+fluxo em `src/modules/pcm/entry/docs/entryOpenApi.ts`. Atualize esses arquivos
+quando mudar o contrato HTTP.
+
+## Fluxo
 
 O endpoint existente **POST /api/serial-numbers** registra a entrada do produto
 na linha PCM e persiste no MySQL. Nao existe uma segunda rota para entrada PCM.

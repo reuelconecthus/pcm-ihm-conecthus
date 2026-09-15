@@ -2,6 +2,9 @@
 
 ## Executar todos os testes
 
+Com a API iniciada, a documentação interativa está em
+[Swagger UI](http://127.0.0.1:3000/api-docs/).
+
 ```powershell
 npm.cmd test
 ```

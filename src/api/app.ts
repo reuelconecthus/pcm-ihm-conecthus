@@ -1,5 +1,6 @@
 import express = require('express');
 import { notFound, handleError } from './middlewares/httpErrors';
+import { registerSwagger } from './docs/swagger';
 
 import { createEntryRoutes } from '../modules/pcm/entry/routes/entryRoutes';
 import type { EntryContract } from '../modules/pcm/entry/repositories/entryContract';
@@ -11,6 +12,7 @@ export function createApp(entries: EntryContract = {
     const app = express();
     app.disable('x-powered-by');
     app.use(express.json({ limit: '4kb', strict: false }));
+    registerSwagger(app);
 
     app.use('/api/serial-numbers', createEntryRoutes(new EntryService(entries)));
 

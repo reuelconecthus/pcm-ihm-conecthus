@@ -41,11 +41,13 @@
   "dependencies": {
     "express": "^5.1.0",
     "kafkajs": "^2.2.4",
-    "mysql2": "^3.24.4"
+    "mysql2": "^3.24.4",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^26.5.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "electron": "^44.0.0",
     "electron-builder": "^26.15.3",
     "nodemon": "^3.1.14",
