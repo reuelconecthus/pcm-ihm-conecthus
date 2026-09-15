@@ -15,6 +15,7 @@ export interface TcpEvent {
 export interface TcpApi {
     connect(options: TcpOptions): Promise<void>;
     disconnect(): Promise<void>;
+    saveLog(content: string): Promise<string | null>;
     onEvent(callback: (event: TcpEvent) => void): () => void;
 }
 

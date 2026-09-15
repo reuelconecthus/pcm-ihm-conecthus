@@ -89,6 +89,20 @@ O computador precisa alcançar a máquina pela rede; acesso à internet não é 
 Se houver conexão, mas nenhum registro, confirme se a máquina envia dados espontaneamente.
 Equipamentos que exigem um comando de consulta precisarão dessa integração posteriormente.
 
+### Salvar os registros em TXT
+
+Clique em **SALVAR TXT** e escolha o nome e a pasta do arquivo. O texto é salvo
+em UTF-8 e contém a data da exportação, o contador de bytes e os registros
+visíveis de status, texto e hexadecimal. É possível salvar durante a conexão
+ou após desconectar.
+
+A exportação captura os registros no momento do clique e respeita o limite da
+tela: até 200 registros e as prévias de blocos longos. Não é uma gravação contínua
+de todos os dados da sessão. Salve antes de limpar os registros ou sair da tela.
+
+O botão chama `window.tcp.saveLog()`, exposto pelo preload. O canal IPC
+`tcp:saveLog` abre a janela de salvamento e grava o arquivo no processo principal.
+
 ## Executar os testes automatizados
 
 Na raiz do projeto, com as dependências instaladas:
