@@ -40,7 +40,7 @@ test('serial duplicado retorna 409', async t => {
     assert.deepEqual(await response.json(), { status: 'ERROR', msg: 'Serial já registrado no início da linha.' });
 });
 
-test('entrada inválida ou QR não grava no banco', async t => {
+test('entrada inválida ou QR sem serial válido não grava no banco', async t => {
     const post = await serve(t, { insert: async () => assert.fail('Não deve gravar') });
     for (const body of [null, [], {}, { 'serial-number': '' }, { 'serial-number': 42 },
         { 'serial-number': 'a b' }, { 'serial-number': 'a'.repeat(513) },

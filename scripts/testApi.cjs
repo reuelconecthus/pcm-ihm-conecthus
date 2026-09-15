@@ -12,7 +12,7 @@ async function serve(t, repository) {
         fetch(`http://127.0.0.1:${server.address().port}${path}`, { method: 'POST', headers, body });
 }
 
-test('HTTP lifecycle releases port and rejects occupied port', async t => {
+test('servidor HTTP libera a porta ao encerrar e rejeita porta ocupada', async t => {
     const api = await startApi({ host: '127.0.0.1', port: 0 });
     t.after(() => api.stop());
     const port = api.address.port;
@@ -22,7 +22,7 @@ test('HTTP lifecycle releases port and rejects occupied port', async t => {
     await restarted.stop();
 });
 
-test('QR containing serial uses the same persistence flow', async t => {
+test('QR com serial utiliza o mesmo fluxo de persistência', async t => {
     const saved = [];
     const post = await serve(t, { insert: async serial => { saved.push(serial); } });
     const response = await post(JSON.stringify({ 'qr-code': 'AbC123', ignored: true }));
@@ -31,8 +31,8 @@ test('QR containing serial uses the same persistence flow', async t => {
     assert.deepEqual(saved, ['AbC123']);
 });
 
-test('invalid JSON, content type, size and removed route return errors', async t => {
-    const post = await serve(t, { insert: async () => assert.fail('Must not insert') });
+test('retorna erros para JSON inválido, tipo de conteúdo, tamanho e rota removida', async t => {
+    const post = await serve(t, { insert: async () => assert.fail('Não deve gravar') });
     for (const [body, headers, path, status] of [
         ['{', undefined, undefined, 400],
         [JSON.stringify({ 'serial-number': 'x'.repeat(5000) }), undefined, undefined, 413],
