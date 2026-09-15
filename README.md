@@ -9,6 +9,9 @@ npm.cmd start
 
 ## Testar os dados da máquina via TCP
 
+Veja a [documentação da estrutura dos testes TCP/IP](docs/tcp/README.md)
+para conhecer os arquivos, o fluxo de comunicação e os testes automatizados.
+
 Na home, abra **Teste TCP**, informe o IP e a porta da máquina e clique em
 **Conectar**. Nesta primeira versão, o aplicativo funciona como cliente TCP:
 a máquina precisa aceitar a conexão e enviar os dados. Nenhum comando é enviado.
