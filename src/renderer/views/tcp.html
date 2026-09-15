@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCM - Teste TCP</title>
+    <link rel="stylesheet" href="../vendor/bootstrap/bootstrap.min.css">
+    <script src="../js/tcp.js" defer></script>
+</head>
+<body class="bg-dark text-light">
+    <main class="container py-4">
+        <a href="home.html" class="btn btn-outline-light mb-3">Voltar à home</a>
+        <h1>Teste de comunicação TCP</h1>
+        <form id="tcp-form" class="row g-3 mb-3">
+            <div class="col-sm-7">
+                <label for="host" class="form-label">IP ou endereço da máquina</label>
+                <input id="host" class="form-control" required placeholder="192.168.0.10">
+            </div>
+            <div class="col-sm-5">
+                <label for="port" class="form-label">Porta TCP</label>
+                <input id="port" class="form-control" type="number" min="1" max="65535" required placeholder="5000">
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button id="connect" class="btn btn-success" type="submit">Conectar</button>
+                <button id="disconnect" class="btn btn-warning" type="button" disabled>Desconectar</button>
+                <button id="clear" class="btn btn-secondary" type="button">Limpar registros</button>
+            </div>
+        </form>
+        <p id="tcp-status" role="status">Desconectado.</p>
+        <p>Recebidos: <span id="byte-count">0</span> bytes</p>
+        <div id="tcp-log" class="border rounded p-3 bg-black" style="height: 45vh; overflow: auto;" aria-label="Dados recebidos"></div>
+    </main>
+</body>
+</html>

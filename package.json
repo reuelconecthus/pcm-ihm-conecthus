@@ -4,9 +4,10 @@
   "description": "Aplicacao para comunicacao TCP/IP com maquinas",
   "main": "dist/main/main.js",
   "scripts": {
-    "build": "tsc && node scripts/copy-assets.cjs",
+    "build": "tsc && node scripts/copyAssets.cjs",
     "build:win": "npm run build && electron-builder --win portable --x64",
     "typecheck": "tsc --noEmit",
+    "test:tcp": "npm run build && node --test scripts/testTcp.cjs",
     "start": "npm run build && electron .",
     "dev": "npm run start"
   },
