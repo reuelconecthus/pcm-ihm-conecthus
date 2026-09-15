@@ -4,6 +4,22 @@ const { once } = require('node:events');
 const { createApp } = require('../dist/api/app');
 const { KafkaPublisher } = require('../dist/api/serialNumber/kafkaPublisher');
 const { readConfig } = require('../dist/api/config');
+const { startApi } = require('../dist/api/server');
+
+test('servidor inicia sem Kafka, rejeita porta ocupada e libera a porta ao parar', async t => {
+    const api = await startApi({ host: '127.0.0.1', port: 0 });
+    t.after(() => api.stop());
+    const port = api.address.port;
+    const response = await fetch(`http://127.0.0.1:${port}/api/serial-numbers`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 'serial-number': 'abc' })
+    });
+    assert.deepEqual(await response.json(), { status: 'OK' });
+    await assert.rejects(startApi({ host: '127.0.0.1', port }), { code: 'EADDRINUSE' });
+    await Promise.all([api.stop(), api.stop()]);
+    const restarted = await startApi({ host: '127.0.0.1', port });
+    await restarted.stop();
+});
 
 async function serve(t, publisher) {
     const server = createApp(publisher).listen(0, '127.0.0.1');

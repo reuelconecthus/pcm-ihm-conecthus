@@ -23,9 +23,15 @@ do scanner poderão usar o mesmo endpoint. O scanner ainda não está integrado.
   compartilhados com a IHM na raiz do projeto.
 
 `npm.cmd run build` compila também a API em `dist/api/`. O comando
-`npm.cmd start` abre a IHM; `npm.cmd run start:api` inicia o serviço HTTP.
-Os processos têm inicialização independente para que abrir a IHM não dependa
-da disponibilidade do Kafka.
+`npm.cmd start` ou `npm.cmd run dev` abre a IHM e inicia a API automaticamente.
+O executável Windows também inicia a API e a encerra ao sair da aplicação.
+`npm.cmd run start:api` continua disponível para executar apenas o serviço HTTP.
+Não execute ambos na mesma porta. Se a API não iniciar, a IHM mostra o erro e encerra.
+
+No desenvolvimento, o Electron lê `.env` na raiz do projeto. Na versão portátil,
+coloque o `.env` ao lado do `.exe` para personalizar `API_HOST` e `API_PORT`.
+Sem esse arquivo, usa `127.0.0.1:3000`. Não é necessário instalar Node.js para
+executar a IHM e a API pelo `.exe`. O Kafka continua desativado.
 
 ## Executar
 

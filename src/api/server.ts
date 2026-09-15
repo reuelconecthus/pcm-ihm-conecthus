@@ -1,52 +1,57 @@
-// Kafka temporariamente desativado. Descomente a integração para reativar.
-// import { Kafka, Partitioners } from 'kafkajs';
+﻿import { createServer } from 'node:http';
 import { createApp } from './app';
 import { readHttpConfig } from './config';
+
+// Kafka temporariamente desativado:
+// import { Kafka, Partitioners } from 'kafkajs';
 // import { readConfig } from './config';
 // import { KafkaPublisher } from './serialNumber/kafkaPublisher';
 
-async function main() {
-    const config = readHttpConfig();
-    // const config = readConfig(); // Substitui readHttpConfig ao reativar Kafka.
-    // const producer = new Kafka(config.kafka).producer({
-    //     allowAutoTopicCreation: false,
-    //     createPartitioner: Partitioners.DefaultPartitioner
+export async function startApi(config = readHttpConfig()) {
+    // Ao reativar, conectar o produtor e substituir o publisher temporário:
+    // const producer = new Kafka(readConfig().kafka).producer({
+    //     allowAutoTopicCreation: false, createPartitioner: Partitioners.DefaultPartitioner
     // });
-    try {
-        // await producer.connect();
-        // const publisher = new KafkaPublisher(producer, config.topic);
-        // Substituir pelo publisher acima ao reativar. OK significa apenas entrada válida.
-        const publisher = { publish: async () => {} };
-        const server = createApp(publisher).listen(config.port, config.host);
-        server.requestTimeout = 15000;
-        server.headersTimeout = 10000;
-        let stopping = false;
-        const shutdown = () => {
-            if (stopping) return;
-            stopping = true;
-            const deadline = setTimeout(() => process.exit(1), 30000);
-            deadline.unref();
-            server.close(() => {
-                clearTimeout(deadline);
-                // Ao reativar, substituir clearTimeout acima por:
-                // void producer.disconnect().catch(() => { process.exitCode = 1; }).finally(() => clearTimeout(deadline));
-            });
-        };
-        server.on('listening', () => console.log(`API disponível em http://${config.host}:${config.port} (Kafka desativado; dados não são publicados)`));
-        server.on('error', () => {
-            console.error('Não foi possível iniciar o servidor HTTP.');
-            process.exitCode = 1;
-            shutdown();
+    // await producer.connect();
+    // const publisher = new KafkaPublisher(producer, readConfig().topic);
+    const publisher = { publish: async () => {} };
+    const server = createServer(createApp(publisher));
+    server.requestTimeout = 15000;
+    server.headersTimeout = 10000;
+    await new Promise<void>((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(config.port, config.host, () => {
+            server.removeListener('error', reject);
+            resolve();
         });
-        process.once('SIGINT', shutdown);
-        process.once('SIGTERM', shutdown);
-    } catch (error) {
-        // await producer.disconnect().catch(() => {});
-        throw error;
-    }
+    });
+    let stopping: Promise<void> | undefined;
+    return {
+        address: server.address(),
+        stop(): Promise<void> {
+            return stopping ??= new Promise<void>((resolve, reject) => {
+                const deadline = setTimeout(() => server.closeAllConnections(), 5000);
+                deadline.unref();
+                server.close(error => {
+                    clearTimeout(deadline);
+                    // Ao reativar Kafka, aguardar producer.disconnect() antes de resolver.
+                    if (error) reject(error);
+                    else resolve();
+                });
+            });
+        }
+    };
 }
 
-void main().catch(() => {
-    console.error('Falha ao iniciar a API. Verifique as configurações HTTP.');
-    process.exitCode = 1;
-});
+// Importar no Electron não inicia outro servidor nem registra sinais de processo.
+if (require.main === module) {
+    void startApi().then(api => {
+        console.log('API iniciada (Kafka desativado; dados não são publicados).', api.address);
+        const shutdown = () => { void api.stop().catch(() => { process.exitCode = 1; }); };
+        process.once('SIGINT', shutdown);
+        process.once('SIGTERM', shutdown);
+    }).catch(error => {
+        console.error('Falha ao iniciar a API:', error.message);
+        process.exitCode = 1;
+    });
+}

@@ -3,6 +3,12 @@ import { writeFile } from 'node:fs/promises';
 import * as path from 'node:path';
 import { TcpService } from '../services/tcpService';
 import { TcpSession } from '../services/tcpSession';
+import { startApi } from '../api/server';
+import { existsSync } from 'node:fs';
+import { loadEnvFile } from 'node:process';
+
+let api: Awaited<ReturnType<typeof startApi>> | undefined;
+let shuttingDown = false;
 
 function createWindow() {
 
@@ -67,7 +73,23 @@ function createWindow() {
     );
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+
+    try {
+        const configDir = app.isPackaged
+            ? (process.env.PORTABLE_EXECUTABLE_DIR || path.dirname(app.getPath('exe')))
+            : app.getAppPath();
+        const envPath = path.join(configDir, '.env');
+        if (existsSync(envPath)) loadEnvFile(envPath);
+        api = await startApi();
+    } catch (error) {
+        const cause = error as NodeJS.ErrnoException;
+        dialog.showErrorBox('Não foi possível iniciar a API', cause.code === 'EADDRINUSE'
+            ? 'A porta da API está ocupada. Encerre a outra instância ou altere API_PORT no arquivo .env.'
+            : `Verifique a configuração da API. ${cause.message}`);
+        app.quit();
+        return;
+    }
 
     createWindow();
 
@@ -79,6 +101,15 @@ app.whenReady().then(() => {
 
     });
 
+});
+
+app.on('before-quit', event => {
+    if (!api || shuttingDown) return;
+    event.preventDefault();
+    shuttingDown = true;
+    void api.stop().catch(error => {
+        console.error('Erro ao encerrar a API:', error);
+    }).finally(() => app.quit());
 });
 
 app.on('window-all-closed', () => {

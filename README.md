@@ -5,7 +5,8 @@
 A [API HTTP em TypeScript/Node.js](docs/api/README.md) recebe `serial-number` (hash) ou `qr-code` (texto lido),
 publica no Kafka e retorna `OK` ou `ERROR` com mensagem. Seu código fica em
 `src/api`, com dependências e compilação compartilhadas com a IHM.
-Execute `npm.cmd run start:api` na raiz para iniciar o serviço HTTP.
+`npm.cmd run dev` e o executável Windows iniciam a IHM e a API juntos.
+Execute `npm.cmd run start:api` na raiz para iniciar somente o serviço HTTP.
 
 ## Executar em desenvolvimento
 
