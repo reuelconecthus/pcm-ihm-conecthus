@@ -1,14 +1,13 @@
+import type { SerialNumberRequestDto } from './dtos/serialNumberRequestDto';
+
 // O hash é opaco: não recalcular, alterar capitalização ou remover caracteres.
 export function isSerialNumber(value: unknown): value is string {
     return typeof value === 'string' && value.length > 0
         && value.length <= 512 && !/\s|[\x00-\x1f\x7f]/u.test(value);
 }
 
-export type CodeInput =
-    | { 'serial-number': string; 'qr-code'?: never }
-    | { 'qr-code': string; 'serial-number'?: never };
-
-export function parseCodeInput(body: unknown): CodeInput {
+// O corpo HTTP continua unknown até passar pela validação em tempo de execução.
+export function parseCodeInput(body: unknown): SerialNumberRequestDto {
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
         throw new Error('Informe serial-number ou qr-code.');
     }
@@ -30,5 +29,5 @@ export function parseCodeInput(body: unknown): CodeInput {
 }
 
 export interface SerialPublisher {
-    publish(input: CodeInput): Promise<void>;
+    publish(input: SerialNumberRequestDto): Promise<void>;
 }

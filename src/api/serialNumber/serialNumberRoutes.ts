@@ -1,14 +1,16 @@
 import { Router } from 'express';
-import { parseCodeInput, type CodeInput, type SerialPublisher } from './serialNumber';
+import { parseCodeInput, type SerialPublisher } from './serialNumber';
+import type { SerialNumberRequestDto } from './dtos/serialNumberRequestDto';
+import type { ApiResponseDto } from '../dtos/apiResponseDto';
 
 export function createSerialNumberRoutes(publisher: SerialPublisher) {
     const router = Router();
-    router.post('/', async (req, res) => {
+    router.post<Record<string, never>, ApiResponseDto, unknown>('/', async (req, res) => {
         if (!req.is('application/json')) {
             res.status(415).json({ status: 'ERROR', msg: 'Use Content-Type: application/json.' });
             return;
         }
-        let input: CodeInput;
+        let input: SerialNumberRequestDto;
         try {
             input = parseCodeInput(req.body);
         } catch (error) {

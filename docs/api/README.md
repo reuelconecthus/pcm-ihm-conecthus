@@ -58,6 +58,15 @@ da implantação. Credenciais Kafka ficam em `.env`, ignorado pelo Git.
 
 ## Contrato
 
+Os contratos TypeScript são definidos em DTOs (objetos de transferência de dados):
+
+- `src/api/serialNumber/dtos/serialNumberRequestDto.ts`: entrada com serial ou QR code.
+- `src/api/dtos/apiResponseDto.ts`: resposta `OK` ou `ERROR` com `msg` obrigatório.
+
+A rota recebe o corpo como `unknown`; `parseCodeInput` valida os dados e retorna
+o DTO de entrada, descartando campos extras. Os tipos não substituem a validação
+em tempo de execução. O publicador Kafka utiliza o mesmo contrato de entrada.
+
 `POST /api/serial-numbers` com `Content-Type: application/json`:
 
 ```json
