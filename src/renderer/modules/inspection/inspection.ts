@@ -7,7 +7,8 @@
     }
     const get = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
     const session = new Inspection.Session(config.id);
-    const storageKey = `pcm.inspection.${config.id}`;
+    // Separa a sessão vazia dos dados de demonstração salvos anteriormente.
+    const storageKey = `pcm.inspection.${config.id}${config.demo ? '' : '.live'}`;
     const labels: Record<Inspection.Result, string> = { approved: 'Aprovada', rejected: 'Reprovada', noCode: 'Sem código' };
     let selected: Inspection.Capture | undefined;
     let sequence = 0;
@@ -26,7 +27,7 @@
             session.history.push(...saved.history.filter(valid).slice(0, 200));
             session.queue.push(...saved.queue.filter(valid).slice(0, 50));
             sequence = Number.isSafeInteger(saved.sequence) ? saved.sequence : 0;
-        } else {
+        } else if (config.demo) {
             for (let i = 12; i > 0; i--) { session.enqueue(demoCapture(Date.now() - i * 4200)); session.processNext(); }
             for (let i = 0; i < 3; i++) session.enqueue(demoCapture());
         }
@@ -84,6 +85,11 @@
         });
     }
     get('title').textContent = config.name; get('station').textContent = config.station + ' / Inspeção visual'; document.title = `PCM · ${config.name}`;
+    if (!config.demo) {
+        document.querySelector<HTMLElement>('.demo')!.textContent = 'Câmera desconectada';
+        document.querySelector<HTMLElement>('#placeholder strong')!.textContent = 'Aguardando imagem';
+        get('selected-note').textContent = 'Nenhuma captura recebida';
+    }
     document.querySelector(`[data-machine="${config.id}"]`)?.setAttribute('aria-current', 'page');
     get('filter').onchange = render;
     ['history', 'production'].forEach(tab => { get(`${tab}-tab`).onclick = () => {

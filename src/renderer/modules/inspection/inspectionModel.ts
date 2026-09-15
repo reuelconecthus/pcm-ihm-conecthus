@@ -8,10 +8,10 @@ namespace Inspection {
         result: Result;
         imageUrl?: string;
     }
-    export interface MachineConfig { id: string; name: string; station: string; }
+    export interface MachineConfig { id: string; name: string; station: string; demo: boolean; }
     export const machines: MachineConfig[] = [
-        { id: 'machine-01', name: 'Inspeção 01', station: 'Máquina 01' },
-        { id: 'machine-02', name: 'Inspeção 02', station: 'Máquina 02' }
+        { id: 'machine-01', name: 'Inspeção 01', station: 'Máquina 01', demo: true },
+        { id: 'machine-02', name: 'Inspeção 02', station: 'Máquina 02', demo: false }
     ];
 
     // Uma sessão por máquina. Sem dependência de câmera, HTTP ou Electron.

@@ -17,6 +17,10 @@ As máquinas têm nomes provisórios configurados em `Inspection.machines`.
 
 ## Funcionamento inicial
 
+A inspeção 01 apresenta dados de demonstração. A inspeção 02 inicia limpa,
+sem capturas simuladas e sem restaurar o antigo histórico de demonstração.
+Essa escolha é configurada pelo campo `demo` de cada máquina.
+
 - Dados de demonstração, sem conexão com câmera, Kafka ou API.
 - Prévia ilustrativa vazia; não são usadas fotografias reais de peças.
 - A tela apresenta um histórico inicial de demonstração. O painel de fila e os
