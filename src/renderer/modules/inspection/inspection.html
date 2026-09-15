@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCM · Inspeção</title>
+    <link rel="stylesheet" href="inspection.css">
+    <script src="inspectionModel.js" defer></script>
+    <script src="inspection.js" defer></script>
+</head>
+
+<body>
+    <header class="topbar"><a href="../../views/home.html">← PCM / HOME</a><span>CONTROLE DE QUALIDADE</span><span
+            class="demo">Demonstração · câmera desconectada</span></header>
+    <main>
+        <div class="heading">
+            <div>
+                <p class="eyebrow">MÓDULO DE INSPEÇÃO</p>
+                <h1 id="title">Inspeção</h1>
+                <p id="station"></p>
+            </div>
+        </div>
+        <div class="workspace">
+            <section class="capture-column" aria-label="Captura selecionada">
+                <div class="card preview-card">
+                    <div class="card-heading">
+                        <h2>Captura da peça</h2><span id="capture-time">—</span>
+                    </div>
+                    <div class="preview" id="preview"><img id="capture-image" alt="Captura da peça selecionada" hidden>
+                        <div id="placeholder"><span class="camera-icon">◎</span><strong>Prévia de demonstração</strong>
+                            <p>As imagens da câmera aparecerão aqui</p>
+                        </div><span class="preview-label">VISÃO SUPERIOR</span>
+                    </div>
+                </div>
+                <div id="result" class="result" role="status">Aguardando captura</div>
+                <div class="card code-card"><span class="eyebrow">CÓDIGO IDENTIFICADO</span><strong
+                        id="code">—</strong><span id="selected-note">Selecione uma captura no histórico</span></div>
+                <section class="card">
+                    <div class="card-heading">
+                        <h2>Hora atual</h2><span id="hour"></span>
+                    </div>
+                    <div class="metrics">
+                        <div><span>Inspecionadas</span><strong id="total">0</strong></div>
+                        <div><span>Aprovação</span><strong id="rate">0%</strong></div>
+                        <div class="approved"><span>Aprovadas</span><strong id="approved">0</strong></div>
+                        <div class="rejected"><span>Reprovadas</span><strong id="rejected">0</strong></div>
+                        <div class="noCode"><span>Sem código</span><strong id="no-code">0</strong></div>
+                        <div><span>Ciclo médio</span><strong id="cycle">—</strong></div>
+                    </div>
+                </section>
+            </section>
+            <section class="history-column">
+                <section class="card history-card">
+                    <div class="history-toolbar">
+                        <div class="tabs" aria-label="Visualização"><button id="history-tab"
+                                aria-pressed="true">Histórico</button><button id="production-tab"
+                                aria-pressed="false">Produção por hora</button></div><span>Últimas 200 capturas</span>
+                    </div>
+                    <div id="history-panel">
+                        <div class="filters"><label for="filter">Resultado</label><select id="filter">
+                                <option value="all">Todos os resultados</option>
+                                <option value="approved">Aprovadas</option>
+                                <option value="rejected">Reprovadas</option>
+                                <option value="noCode">Sem código</option>
+                            </select><span id="history-count"></span></div>
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Data / hora</th>
+                                        <th>Código</th>
+                                        <th>Resultado</th>
+                                        <th>Captura</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="production-panel" hidden>
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Hora</th>
+                                        <th>Total</th>
+                                        <th>Aprovadas</th>
+                                        <th>Reprovadas</th>
+                                        <th>Sem código</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="production"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+    <footer class="bottom-nav"><a href="../../views/home.html">HOME</a>
+        <nav aria-label="Máquina de inspeção"><a href="?machine=machine-01" data-machine="machine-01">Inspeção 01</a><a
+                href="?machine=machine-02" data-machine="machine-02">Inspeção 02</a></nav><a
+            href="../../views/tcp.html">TESTE TCP</a>
+    </footer>
+</body>
+
+</html>

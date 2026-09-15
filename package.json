@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test:tcp": "npm run build && node --test scripts/testTcp.cjs",
     "test:api": "npm run build && node --test scripts/testApi.cjs",
+    "test:inspection": "npm run build && node --test scripts/testInspection.cjs",
     "start:api": "npm run build && node --env-file-if-exists=.env dist/api/server.js",
     "start": "npm run build && electron .",
     "dev": "npm run start"

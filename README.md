@@ -1,5 +1,11 @@
 # conecthus.PCM
 
+## Inspeção visual
+
+Na home, **INSPEÇÃO 01** e **INSPEÇÃO 02** abrem o [módulo de inspeção](docs/inspection/README.md),
+com fila e histórico independentes por máquina. A primeira versão é apenas front-end,
+com capturas simuladas, filtros e indicadores de produção.
+
 ## API de serial-number
 
 A [API HTTP em TypeScript/Node.js](docs/api/README.md) recebe `serial-number` (hash) ou `qr-code` (texto lido),
