@@ -7,6 +7,7 @@
     "build": "tsc && node scripts/copyAssets.cjs",
     "build:win": "npm run build && electron-builder --win portable --x64",
     "typecheck": "tsc --noEmit",
+    "test": "npm run build && node --test scripts/test*.cjs",
     "test:tcp": "npm run build && node --test scripts/testTcp.cjs",
     "test:api": "npm run build && node --test scripts/testApi.cjs",
     "test:pcm": "npm run build && node --test scripts/testPcmEntry.cjs",

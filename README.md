@@ -1,5 +1,15 @@
 # conecthus.PCM
 
+## Executar todos os testes
+
+```powershell
+npm.cmd test
+```
+
+Compila o projeto e executa as suítes de API, entrada PCM, TCP e inspeção.
+Os comandos `test:api`, `test:pcm`, `test:tcp` e `test:inspection` continuam
+disponíveis para executar cada suíte separadamente.
+
 ## Entrada da linha PCM
 
 A API `POST /api/serial-numbers` registra o serial no MySQL e rejeita duplicidades.
