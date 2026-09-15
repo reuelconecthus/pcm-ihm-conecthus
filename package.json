@@ -5,13 +5,30 @@
   "main": "dist/main/main.js",
   "scripts": {
     "build": "tsc && node scripts/copy-assets.cjs",
+    "build:win": "npm run build && electron-builder --win portable --x64",
     "typecheck": "tsc --noEmit",
     "start": "npm run build && electron .",
     "dev": "npm run start"
   },
+  "build": {
+    "appId": "br.com.conecthus.pcm",
+    "productName": "PCM IHM",
+    "directories": {
+      "output": "out"
+    },
+    "files": ["dist/**/*", "package.json"],
+    "win": {
+      "target": "portable",
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "PCM-IHM-${version}-${arch}.exe"
+    }
+  },
   "devDependencies": {
     "@types/node": "^26.5.1",
     "electron": "^44.0.0",
+    "electron-builder": "^26.15.3",
     "nodemon": "^3.1.14",
     "typescript": "^7.0.2"
   }
