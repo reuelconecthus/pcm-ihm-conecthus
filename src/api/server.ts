@@ -1,30 +1,23 @@
 ﻿import { createServer } from 'node:http';
 import { createApp } from './app';
 import { readHttpConfig } from './config';
-
-// Kafka temporariamente desativado:
-// import { Kafka, Partitioners } from 'kafkajs';
-// import { readConfig } from './config';
-// import { KafkaPublisher } from './serialNumber/kafkaPublisher';
+import { createMysqlPool } from './database/mysql';
+import { MysqlPcmEntryRepository } from './pcmEntry/mysqlPcmEntryRepository';
 
 export async function startApi(config = readHttpConfig()) {
-    // Ao reativar, conectar o produtor e substituir o publisher temporário:
-    // const producer = new Kafka(readConfig().kafka).producer({
-    //     allowAutoTopicCreation: false, createPartitioner: Partitioners.DefaultPartitioner
-    // });
-    // await producer.connect();
-    // const publisher = new KafkaPublisher(producer, readConfig().topic);
-    const publisher = { publish: async () => {} };
-    const server = createServer(createApp(publisher));
+    // Sem configuração, o endpoint retorna 503; nunca confirma uma gravação fictícia.
+    const pool = process.env.MYSQL_HOST ? createMysqlPool() : undefined;
+    const entries = pool ? new MysqlPcmEntryRepository(pool) : undefined;
+    const server = createServer(createApp(entries));
     server.requestTimeout = 15000;
     server.headersTimeout = 10000;
-    await new Promise<void>((resolve, reject) => {
+    try { await new Promise<void>((resolve, reject) => {
         server.once('error', reject);
         server.listen(config.port, config.host, () => {
             server.removeListener('error', reject);
             resolve();
         });
-    });
+    }); } catch (error) { await pool?.end(); throw error; }
     let stopping: Promise<void> | undefined;
     return {
         address: server.address(),
@@ -34,9 +27,9 @@ export async function startApi(config = readHttpConfig()) {
                 deadline.unref();
                 server.close(error => {
                     clearTimeout(deadline);
-                    // Ao reativar Kafka, aguardar producer.disconnect() antes de resolver.
-                    if (error) reject(error);
-                    else resolve();
+                    void (pool?.end() ?? Promise.resolve()).then(() => {
+                        if (error) reject(error); else resolve();
+                    }, reject);
                 });
             });
         }
@@ -46,7 +39,7 @@ export async function startApi(config = readHttpConfig()) {
 // Importar no Electron não inicia outro servidor nem registra sinais de processo.
 if (require.main === module) {
     void startApi().then(api => {
-        console.log('API iniciada (Kafka desativado; dados não são publicados).', api.address);
+        console.log('API iniciada. Entrada PCM persiste no MySQL quando configurado; Kafka desativado.', api.address);
         const shutdown = () => { void api.stop().catch(() => { process.exitCode = 1; }); };
         process.once('SIGINT', shutdown);
         process.once('SIGTERM', shutdown);

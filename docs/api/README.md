@@ -1,146 +1,61 @@
-# API de serial-number ou QR code
+﻿# API de bipagem: serial ou QR code
 
-**Kafka temporariamente desativado:** a integração está comentada em
-`src/api/server.ts`. A API inicia sem broker e sem variáveis Kafka.
-`OK` significa apenas entrada válida; os dados não são publicados nem armazenados.
-O `KafkaPublisher` foi preservado para reativação. As informações de confirmação
-e publicação abaixo descrevem o comportamento quando essa integração for reativada.
+O endpoint existente **POST /api/serial-numbers** registra a entrada do produto
+na linha PCM e persiste no MySQL. Nao existe uma segunda rota para entrada PCM.
 
-Serviço HTTP em TypeScript/Node.js integrado à estrutura do projeto. A IHM e a futura função
-do scanner poderão usar o mesmo endpoint. O scanner ainda não está integrado.
-
-## Estrutura
-
-- `src/api/app.ts`: configuração HTTP, registro das rotas e erros gerais.
-- `src/api/config.ts`: leitura e validação da configuração do ambiente.
-- `src/api/server.ts`: inicialização e encerramento do servidor e produtor Kafka.
-- `src/api/serialNumber/serialNumber.ts`: validação do hash e contrato de publicação.
-- `src/api/serialNumber/serialNumberRoutes.ts`: endpoint e respostas da entidade.
-- `src/api/serialNumber/kafkaPublisher.ts`: publicação da entidade no Kafka.
-- `scripts/testApi.cjs`: testes automatizados da API.
-- `.env.example`: exemplo de configuração na raiz.
-- `package.json`, `package-lock.json`, `node_modules/` e `tsconfig.json`: únicos,
-  compartilhados com a IHM na raiz do projeto.
-
-`npm.cmd run build` compila também a API em `dist/api/`. O comando
-`npm.cmd start` ou `npm.cmd run dev` abre a IHM e inicia a API automaticamente.
-O executável Windows também inicia a API e a encerra ao sair da aplicação.
-`npm.cmd run start:api` continua disponível para executar apenas o serviço HTTP.
-Não execute ambos na mesma porta. Se a API não iniciar, a IHM mostra o erro e encerra.
-
-No desenvolvimento, o Electron lê `.env` na raiz do projeto. Na versão portátil,
-coloque o `.env` ao lado do `.exe` para personalizar `API_HOST` e `API_PORT`.
-Sem esse arquivo, usa `127.0.0.1:3000`. Não é necessário instalar Node.js para
-executar a IHM e a API pelo `.exe`. O Kafka continua desativado.
-
-## Executar
-
-Requer Node.js 22.9+. Enquanto Kafka estiver desativado, basta executar
-`npm.cmd run start:api`; `.env` é opcional para configurar host e porta.
-Ao reativar Kafka, será necessário acesso ao cluster com o tópico já criado.
-Na raiz do repositório, em PowerShell:
-
-```powershell
-npm.cmd ci
-Copy-Item .env.example .env
-# Edite .env com os brokers, tópico e autenticação do ambiente.
-npm.cmd run start:api
-```
-
-O exemplo usa `localhost:9092` e `pcm.serial-numbers` como valores ilustrativos.
-Não instala Kafka nem cria o tópico. O serviço só inicia o HTTP após conectar
-ao Kafka; falhas de inicialização encerram o processo com código diferente de zero.
-
-Por padrão escuta em `127.0.0.1:3000`. `API_HOST` e `API_PORT` são configuráveis.
-Esta versão não implementa autenticação HTTP; o endereço padrão limita o acesso
-ao computador local. Para disponibilizar em rede, definir o controle de acesso
-da implantação. Credenciais Kafka ficam em `.env`, ignorado pelo Git.
-
-## Contrato
-
-Os contratos TypeScript são definidos em DTOs (objetos de transferência de dados):
-
-- `src/api/serialNumber/dtos/serialNumberRequestDto.ts`: entrada com serial ou QR code.
-- `src/api/dtos/apiResponseDto.ts`: resposta `OK` ou `ERROR` com `msg` obrigatório.
-
-A rota recebe o corpo como `unknown`; `parseCodeInput` valida os dados e retorna
-o DTO de entrada, descartando campos extras. Os tipos não substituem a validação
-em tempo de execução. O publicador Kafka utiliza o mesmo contrato de entrada.
-
-`POST /api/serial-numbers` com `Content-Type: application/json`:
+## Entrada
 
 ```json
 { "serial-number": "AbC123" }
 ```
 
-Também aceita o conteúdo textual de um QR code lido pelo scanner:
+Ou o serial lido de um QR code:
 
 ```json
-{ "qr-code": "https://exemplo.com/peca/AbC123" }
+{ "qr-code": "AbC123" }
 ```
 
-Envie exatamente um dos campos. Enviar ambos retorna HTTP 400. `qr-code` aceita
-texto não vazio de até 2048 caracteres, preservando espaços e quebras de linha.
-A API não decodifica imagens nem extrai um serial do conteúdo do QR code.
-O consumidor Kafka recebe o campo correspondente à entrada.
+Envie exatamente um campo. O serial deve ter de 1 a 512 caracteres, sem espacos
+ou controles. O texto e preservado, inclusive maiusculas e minusculas. Para este
+fluxo, QR deve conter o proprio serial; nao ha extracao de serial de JSON ou URL.
+Campos adicionais sao ignorados. Corpo limitado a 4 KB.
 
-O campo `serial-number` recebe o hash já calculado, sem transformá-lo. Como o algoritmo não foi
-definido, a validação aceita texto de 1 a 512 caracteres sem espaços ou caracteres
-de controle; não comprova que o valor é um hash válido de determinado algoritmo.
-Corpo JSON limitado a 4 KB. Campos adicionais são ignorados e não são publicados.
+## Respostas
 
-HTTP 200, somente após confirmação do Kafka:
+- HTTP 200: `{"status":"OK"}` depois da confirmacao da gravacao.
+- HTTP 409: `{"status":"ERROR","msg":"Serial ja registrado..."}` para duplicidade.
+- HTTP 400: entrada invalida.
+- HTTP 503: banco indisponivel, nao configurado ou gravacao nao confirmada.
+- HTTP 413/415: corpo excedido ou tipo de conteudo nao suportado.
 
-```json
-{ "status": "OK" }
-```
+Serial e QR com o mesmo valor representam o mesmo produto e a mesma restricao
+UNIQUE. Nao ha publicacao Kafka, RabbitMQ, fila ou WebSocket nesse fluxo.
 
-Erros têm sempre `status` e `msg`, por exemplo HTTP 503:
+## Configuracao e migration
 
-```json
-{ "status": "ERROR", "msg": "Não foi possível confirmar o envio ao Kafka." }
-```
+Veja [entrada PCM e MySQL](pcmEntry.md) para configurar o banco, executar
+`npm run db:migrate` e testar a API.
 
-| HTTP | Motivo |
-| --- | --- |
-| 400 | JSON inválido, serial/QR inválido ou ambos os campos enviados |
-| 404 | Rota não encontrada |
-| 413 | Corpo maior que 4 KB |
-| 415 | Tipo de conteúdo ou codificação não suportado |
-| 503 | Publicação não confirmada pelo Kafka |
-| 500 | Erro interno |
+`npm run dev` inicia IHM e API; `npm run start:api` inicia somente a API.
+No desenvolvimento, `.env` fica na raiz; no portatil, ao lado do `.exe`.
+Nao execute ambos na mesma porta.
 
-Exemplo PowerShell:
+## Estrutura
 
-```powershell
-Invoke-RestMethod -Method Post -Uri http://127.0.0.1:3000/api/serial-numbers -ContentType application/json -Body '{"serial-number":"AbC123"}'
-```
+- `src/api/serialNumber/dtos/serialNumberRequestDto.ts`: DTO da entrada existente.
+- `src/api/dtos/apiResponseDto.ts`: DTO das respostas.
+- `src/api/serialNumber/serialNumber.ts`: validacao em tempo de execucao.
+- `src/api/serialNumber/serialNumberRoutes.ts`: endpoint de bipagem e persistencia.
+- `src/api/pcmEntry/pcmEntry.ts`: contrato do repositorio e erro de duplicidade.
+- `src/api/pcmEntry/mysqlPcmEntryRepository.ts`: INSERT parametrizado.
+- `src/api/database/mysql.ts`: configuracao e pool MySQL.
 
-## Publicação Kafka
-
-- Destino: `KAFKA_TOPIC`; brokers separados por vírgula em `KAFKA_BROKERS`.
-- Chave: valor exato de `serial-number` ou `qr-code`.
-- Valor: JSON UTF-8 `{"serial-number":"AbC123"}` ou `{"qr-code":"conteúdo lido"}`.
-- Confirmação com `acks: -1` (réplicas em sincronia), respeitando a configuração do broker.
-- `OK` confirma publicação, não o processamento pelo consumidor.
-- Não há armazenamento local nem deduplicação entre chamadas HTTP. Se a resposta
-  se perder ou houver timeout, a mensagem pode ter sido publicada: uma nova
-  tentativa pode duplicá-la. A chave Kafka não elimina duplicatas.
-- Timeout Kafka de 10 segundos por requisição, com até duas tentativas adicionais;
-  o tempo total de uma chamada HTTP pode ser maior. Configure o cliente de acordo.
-- `KAFKA_SSL=true` habilita TLS. SASL opcional: `plain`, `scram-sha-256` ou
-  `scram-sha-512`, com `KAFKA_SASL_USERNAME` e `KAFKA_SASL_PASSWORD`.
-  `plain` exige TLS. Certificados adicionais podem usar `NODE_EXTRA_CA_CERTS`.
-
-Referências: [produção KafkaJS](https://kafka.js.org/docs/producing) e
-[configuração KafkaJS](https://kafka.js.org/docs/configuration).
+O corpo HTTP permanece `unknown` ate passar pela validacao. DTOs nao substituem
+essa validacao. O publicador Kafka antigo permanece fora do fluxo de execucao.
 
 ## Testes
 
-```powershell
-npm.cmd run test:api
-```
+- `npm run test:api`: ciclo de vida HTTP, QR e erros de protocolo.
+- `npm run test:pcm`: persistencia, duplicidade, validacao e falhas do banco.
 
-Os testes abrem um servidor HTTP local e substituem o produtor Kafka por um
-objeto de teste. Verificam validação, contrato, payload, espera pela confirmação
-e falhas de publicação. Não comprovam integração com um broker real.
+Os testes usam dependencias substituidas; nao validam um servidor MySQL real.

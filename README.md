@@ -1,5 +1,11 @@
 # conecthus.PCM
 
+## Entrada da linha PCM
+
+A API `POST /api/serial-numbers` registra o serial no MySQL e rejeita duplicidades.
+Configure o banco no `.env` e execute `npm run db:migrate`.
+Veja o [fluxo de entrada PCM](docs/api/pcmEntry.md).
+
 ## Inspeção visual
 
 Na home, **INSPEÇÃO 01** e **INSPEÇÃO 02** abrem o [módulo de inspeção](docs/inspection/README.md),
@@ -91,3 +97,21 @@ scripts/
 ├── copyAssets.cjs
 └── testTcp.cjs
 ```
+
+
+┌──────────────── REDE INDUSTRIAL ────────────────┐
+│                                                 │
+│                  Switch                         │
+│                    │                            │
+│       ┌────────────┼─────────────┐              │
+│       │            │             │              │
+│       ▼            ▼             ▼              │
+│      PCM       Inspeção 1    Inspeção 2         │
+│                                                 │
+│       │                                         │
+│       ├── Node.js                               │
+│       ├── MySQL                                 │
+│       ├── WebSocket                             │
+│       └── RabbitMQ/Kafka                        │
+│                                                 │
+└─────────────────────────────────────────────────┘

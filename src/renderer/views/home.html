@@ -255,6 +255,10 @@
             background: #2469aa;
         }
 
+        .disabled{
+            pointer-events: none !important;
+            opacity: 40% !important;
+        }
         /* ALARME */
 
         .alarm-area {
@@ -433,19 +437,19 @@
                 HOME
             </button>
 
-            <button class="nav-button" data-page="manual">
+            <button class="nav-button disabled" data-page="manual">
                 MANUAL
             </button>
 
-            <button class="nav-button" data-page="processo">
+            <button class="nav-button disabled" data-page="processo">
                 PROCESSO
             </button>
 
-            <button class="nav-button" data-page="alarmes">
+            <button class="nav-button disabled" data-page="alarmes">
                 ALARMES
             </button>
 
-            <button class="nav-button" data-page="configuracoes">
+            <button class="nav-button disabled" data-page="configuracoes">
                 CONFIGURAÇÕES
             </button>
 

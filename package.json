@@ -9,6 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test:tcp": "npm run build && node --test scripts/testTcp.cjs",
     "test:api": "npm run build && node --test scripts/testApi.cjs",
+    "test:pcm": "npm run build && node --test scripts/testPcmEntry.cjs",
+    "db:migrate": "npm run build && node --env-file-if-exists=.env scripts/migrateMysql.cjs",
     "test:inspection": "npm run build && node --test scripts/testInspection.cjs",
     "start:api": "npm run build && node --env-file-if-exists=.env dist/api/server.js",
     "start": "npm run build && electron .",
@@ -20,7 +22,10 @@
     "directories": {
       "output": "out"
     },
-    "files": ["dist/**/*", "package.json"],
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
     "win": {
       "target": "portable",
       "signAndEditExecutable": false
@@ -29,10 +34,13 @@
       "artifactName": "PCM-IHM-${version}-${arch}.exe"
     }
   },
-  "engines": { "node": ">=22.9.0" },
+  "engines": {
+    "node": ">=22.9.0"
+  },
   "dependencies": {
     "express": "^5.1.0",
-    "kafkajs": "^2.2.4"
+    "kafkajs": "^2.2.4",
+    "mysql2": "^3.24.4"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
