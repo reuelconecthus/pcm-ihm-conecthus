@@ -8,6 +8,8 @@
     "build:win": "npm run build && electron-builder --win portable --x64",
     "typecheck": "tsc --noEmit",
     "test:tcp": "npm run build && node --test scripts/testTcp.cjs",
+    "test:api": "npm run build && node --test scripts/testApi.cjs",
+    "start:api": "npm run build && node --env-file-if-exists=.env dist/api/server.js",
     "start": "npm run build && electron .",
     "dev": "npm run start"
   },
@@ -26,7 +28,13 @@
       "artifactName": "PCM-IHM-${version}-${arch}.exe"
     }
   },
+  "engines": { "node": ">=22.9.0" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "kafkajs": "^2.2.4"
+  },
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/node": "^26.5.1",
     "electron": "^44.0.0",
     "electron-builder": "^26.15.3",
