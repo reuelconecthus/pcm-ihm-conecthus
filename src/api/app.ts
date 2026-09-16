@@ -7,7 +7,7 @@ import type { EntryContract } from '../modules/pcm/entry/repositories/entryContr
 import { EntryService } from '../modules/pcm/entry/services/entryService';
 
 export function createApp(entries: EntryContract = {
-    insert: async () => { throw new Error('MySQL não configurado.'); }
+    insert: async () => { throw new Error('MongoDB não configurado.'); }
 }) {
     const app = express();
     app.disable('x-powered-by');

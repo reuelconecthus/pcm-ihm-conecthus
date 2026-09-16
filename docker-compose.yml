@@ -1,19 +1,23 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: pcm-mysql
+  mongo:
+    image: mongo:7.0
+    container_name: pcm-mongo
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-pcm}
-      MYSQL_USER: ${MYSQL_USER:-pcm_app}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-pcm_app}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-root}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-pcm}
+      # Lidas pelo script de init abaixo para criar o usuário de aplicação (não-root).
+      MONGO_APP_DATABASE: ${MONGO_DATABASE:-pcm}
+      MONGO_APP_USER: ${MONGO_USER:-pcm_app}
+      MONGO_APP_PASSWORD: ${MONGO_PASSWORD:-pcm_app}
     ports:
-      - '${MYSQL_PORT:-3306}:3306'
+      - '${MONGO_PORT:-27017}:27017'
     volumes:
-      - pcm_mysql_data:/var/lib/mysql
+      - pcm_mongo_data:/data/db
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p${MYSQL_ROOT_PASSWORD:-root}']
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping")']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -49,5 +53,5 @@ services:
       start_period: 30s
 
 volumes:
-  pcm_mysql_data:
+  pcm_mongo_data:
   pcm_kafka_data:

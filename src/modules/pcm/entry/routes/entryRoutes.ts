@@ -20,7 +20,7 @@ export function createEntryRoutes(service: EntryService) {
             } else if (error instanceof DuplicateSerialError) {
                 res.status(409).json({ status: 'ERROR', msg: 'Serial já registrado no início da linha.' });
             } else {
-                res.status(503).json({ status: 'ERROR', msg: 'Não foi possível confirmar o registro no MySQL.' });
+                res.status(503).json({ status: 'ERROR', msg: 'Não foi possível confirmar o registro no MongoDB.' });
             }
         }
     });

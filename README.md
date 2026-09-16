@@ -21,27 +21,29 @@ continuam disponíveis para executar cada suíte separadamente.
 
 ## Entrada da linha PCM
 
-A API `POST /api/serial-numbers` registra o serial no MySQL e rejeita duplicidades.
-Configure o banco no `.env` (veja `.env.example`) e execute `npm run db:migrate`.
-Veja o [fluxo de entrada PCM](docs/api/pcmEntry.md).
+A API `POST /api/serial-numbers` registra o serial no MongoDB e rejeita duplicidades.
+Configure o banco no `.env` (veja `.env.example`). O índice único é criado
+automaticamente a cada conexão; `npm run db:migrate` é opcional, só para preparar o
+banco sem subir a API/IHM. Veja o [fluxo de entrada PCM](docs/api/pcmEntry.md).
 
-### Subir MySQL e Kafka com Docker
+### Subir MongoDB e Kafka com Docker
 
 ```powershell
 copy .env.example .env
 npm.cmd run infra:up
-npm.cmd run db:migrate
 ```
 
-`infra:up` sobe todos os serviços de `docker-compose.yml`: `pcm-mysql` (imagem `mysql:8.0`,
-dados no volume `pcm_mysql_data`) e `pcm-kafka` (imagem `apache/kafka:3.8.0`, modo KRaft
+`infra:up` sobe todos os serviços de `docker-compose.yml`: `pcm-mongo` (imagem `mongo:7.0`,
+dados no volume `pcm_mongo_data`) e `pcm-kafka` (imagem `apache/kafka:3.8.0`, modo KRaft
 sem Zookeeper, dados no volume `pcm_kafka_data`), publicado em `KAFKA_BROKERS=localhost:9092`.
 Use `npm.cmd run db:up` ou `npm.cmd run kafka:up` para subir só um dos dois.
 As credenciais/portas vêm do `.env` na raiz (lido automaticamente pelo `docker compose`);
-sem ele, valores padrão de desenvolvimento são usados.
+sem ele, valores padrão de desenvolvimento são usados. O script `docker/mongo-init.js`
+cria o usuário de aplicação (`MONGO_USER`/`MONGO_PASSWORD`) com acesso restrito ao banco
+`MONGO_DATABASE`, separado do usuário root (`MONGO_ROOT_USER`/`MONGO_ROOT_PASSWORD`).
 `db:logs`/`kafka:logs` acompanham o log de cada container e `infra:down` encerra tudo.
 
-O fluxo de entrada ativo (`POST /api/serial-numbers`) grava direto no MySQL e mantém o
+O fluxo de entrada ativo (`POST /api/serial-numbers`) grava direto no MongoDB e mantém o
 Kafka desativado (veja o log de inicialização da API); o container Kafka existe para o
 produtor/consumidor independentes descritos a seguir.
 
@@ -67,7 +69,7 @@ Cada mensagem recebida é logada no console com tópico, partição, offset, cha
 e horário. `KAFKA_BROKERS` e `KAFKA_TOPIC` no `.env` definem o broker e o tópico; ambos
 os comandos usam o mesmo tópico, então uma mensagem publicada aparece no consumidor
 que estiver rodando. Esse par é independente do fluxo de entrada da linha PCM — não
-altera o endpoint HTTP nem o que é gravado no MySQL.
+altera o endpoint HTTP nem o que é gravado no MongoDB.
 
 ## Inspeção visual
 
@@ -145,7 +147,7 @@ Os módulos são agrupados por responsabilidade:
 - `src/modules/tcp/`: serviço, sessão e tipos de comunicação TCP.
 - `src/modules/kafka/`: configuração e services (produtor/consumidor) genéricos de Kafka,
   usados pelos entrypoints em `src/kafka/` (veja [docs/kafka](docs/kafka/README.md)).
-- `src/database/`: conexão MySQL, executor e arquivos de migrations.
+- `src/database/`: conexão MongoDB e executor da migration.
 - `src/api/`: servidor HTTP, registro das rotas e respostas compartilhadas.
   Os tratamentos HTTP comuns ficam em `middlewares/`.
 - `src/renderer/modules/inspection/`: módulo visual de inspeção independente por máquina.
@@ -188,7 +190,7 @@ scripts/
 │                                                 │
 │       │                                         │
 │       ├── Node.js                               │
-│       ├── MySQL                                 │
+│       ├── MongoDB                               │
 │       ├── WebSocket                             │
 │       └── RabbitMQ/Kafka                        │
 │                                                 │

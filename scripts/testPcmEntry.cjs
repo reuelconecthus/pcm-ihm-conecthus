@@ -3,7 +3,7 @@ const { test } = require('node:test');
 const { once } = require('node:events');
 const { createApp } = require('../dist/api/app');
 const { EntryRepository } = require('../dist/modules/pcm/entry/repositories/entryRepository');
-const { readMysqlConfig } = require('../dist/database/mysql');
+const { readMongoConfig } = require('../dist/database/mongo');
 
 async function serve(t, repository) {
     const server = createApp(repository).listen(0, '127.0.0.1');
@@ -14,14 +14,14 @@ async function serve(t, repository) {
     });
 }
 
-test('só confirma após persistir e usa parâmetro SQL preservando o serial', async t => {
+test('só confirma após persistir e preserva o serial exato', async t => {
     let confirm, notify;
     const entered = new Promise(resolve => { notify = resolve; });
-    const post = await serve(t, new EntryRepository({ execute: async (sql, args) => {
-        assert.match(sql, /VALUES \(\?, UTC_TIMESTAMP\(3\)\)/);
-        assert.equal(args[0].toString('utf8'), "AbC'123");
+    const post = await serve(t, new EntryRepository({ insertOne: async doc => {
+        assert.equal(doc.serialNumber, "AbC'123");
+        assert.ok(doc.enteredAt instanceof Date);
         notify(); await new Promise(resolve => { confirm = resolve; });
-        return [{ affectedRows: 1 }, []];
+        return { acknowledged: true, insertedId: 1 };
     } }));
     let complete = false;
     const pending = post({ 'serial-number': "AbC'123" }).then(result => { complete = true; return result; });
@@ -32,8 +32,8 @@ test('só confirma após persistir e usa parâmetro SQL preservando o serial', a
 });
 
 test('serial duplicado retorna 409', async t => {
-    const post = await serve(t, new EntryRepository({ execute: async () => {
-        throw Object.assign(new Error('internal details'), { code: 'ER_DUP_ENTRY' });
+    const post = await serve(t, new EntryRepository({ insertOne: async () => {
+        throw Object.assign(new Error('internal details'), { code: 11000 });
     } }));
     const response = await post({ 'serial-number': 'abc' });
     assert.equal(response.status, 409);
@@ -54,13 +54,13 @@ test('falha ou ausência de banco retorna 503 sem detalhes internos', async t =>
         const post = await serve(t, repo);
         const response = await post({ 'serial-number': 'abc' });
         assert.equal(response.status, 503);
-        assert.deepEqual(await response.json(), { status: 'ERROR', msg: 'Não foi possível confirmar o registro no MySQL.' });
+        assert.deepEqual(await response.json(), { status: 'ERROR', msg: 'Não foi possível confirmar o registro no MongoDB.' });
     }
 });
 
 test('configuração exige conexão explícita e porta válida', () => {
-    assert.throws(() => readMysqlConfig({}));
-    const env = { MYSQL_HOST: 'localhost', MYSQL_DATABASE: 'pcm', MYSQL_USER: 'app', MYSQL_PASSWORD: '' };
-    assert.equal(readMysqlConfig(env).port, 3306);
-    assert.throws(() => readMysqlConfig({ ...env, MYSQL_PORT: '-1' }));
+    assert.throws(() => readMongoConfig({}));
+    const env = { MONGO_HOST: 'localhost', MONGO_DATABASE: 'pcm', MONGO_USER: 'app', MONGO_PASSWORD: '' };
+    assert.equal(readMongoConfig(env).port, 27017);
+    assert.throws(() => readMongoConfig({ ...env, MONGO_PORT: '-1' }));
 });

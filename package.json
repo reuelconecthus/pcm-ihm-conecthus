@@ -13,9 +13,9 @@
     "test:api": "npm run build && node --test scripts/testApi.cjs",
     "test:pcm": "npm run build && node --test scripts/testPcmEntry.cjs",
     "test:kafka": "npm run build && node --test scripts/testKafka.cjs",
-    "db:migrate": "npm run build && node --env-file-if-exists=.env dist/database/migrateMysql.cjs",
-    "db:up": "docker compose up -d mysql",
-    "db:logs": "docker compose logs -f mysql",
+    "db:migrate": "npm run build && node --env-file-if-exists=.env dist/database/migrateMongo.cjs",
+    "db:up": "docker compose up -d mongo",
+    "db:logs": "docker compose logs -f mongo",
     "kafka:up": "docker compose up -d kafka",
     "kafka:logs": "docker compose logs -f kafka",
     "kafka:produce": "npm run build && node --env-file-if-exists=.env dist/kafka/producer.js",
@@ -52,7 +52,7 @@
     "express": "^5.1.0",
     "kafkajs": "^2.2.4",
     "modbus-serial": "^8.0.25",
-    "mysql2": "^3.24.4",
+    "mongodb": "^7.6.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@
 
 Par de utilitários genéricos para publicar e consumir mensagens em um tópico Kafka.
 Independente do fluxo de entrada da linha PCM: não altera `POST /api/serial-numbers`
-nem o que é gravado no MySQL. Para o adaptador Kafka antigo, específico da bipagem e
+nem o que é gravado no MongoDB. Para o adaptador Kafka antigo, específico da bipagem e
 fora de uso, veja `src/modules/pcm/entry/integrations/` e [docs/api](../api/README.md).
 
 ## Subir o Kafka
@@ -13,7 +13,7 @@ npm.cmd run kafka:up
 ```
 
 Veja a [seção de Docker no README](../../README.md#produtor-e-consumidor-kafka) para
-subir Kafka e MySQL juntos com `infra:up`.
+subir Kafka e MongoDB juntos com `infra:up`.
 
 ## Configuração
 

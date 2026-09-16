@@ -3,9 +3,9 @@ import { entryPaths, entrySchemas } from '../../modules/pcm/entry/docs/entryOpen
 export const openApiDocument = {
     openapi: '3.0.3',
     info: { title: 'API PCM', version: '1.0.0',
-        description: 'Documentação dos serviços do sistema PCM, organizada por módulo e funcionalidade. Sem autenticação implementada; acesso local por padrão. Rotas inexistentes retornam HTTP 404 com status ERROR e msg. A consulta à documentação não depende do MySQL.' },
+        description: 'Documentação dos serviços do sistema PCM, organizada por módulo e funcionalidade. Sem autenticação implementada; acesso local por padrão. Rotas inexistentes retornam HTTP 404 com status ERROR e msg. A consulta à documentação não depende do MongoDB.' },
     servers: [{ url: '/', description: 'Servidor atual da API' }],
-    tags: [{ name: 'Entrada PCM', description: 'Bipagem e persistência no MySQL.' }],
+    tags: [{ name: 'Entrada PCM', description: 'Bipagem e persistência no MongoDB.' }],
     paths: entryPaths,
     components: { schemas: {
         ...entrySchemas,

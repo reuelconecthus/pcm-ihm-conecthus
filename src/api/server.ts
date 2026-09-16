@@ -1,13 +1,14 @@
 ﻿import { createServer } from 'node:http';
 import { createApp } from './app';
 import { readHttpConfig } from './config';
-import { createMysqlPool } from '../database/mysql';
+import { connectMongo } from '../database/mongo';
 import { EntryRepository } from '../modules/pcm/entry/repositories/entryRepository';
+import { pcmLineEntriesCollection } from '../modules/pcm/entry/repositories/entryModel';
 
 export async function startApi(config = readHttpConfig()) {
     // Sem configuração, o endpoint retorna 503; nunca confirma uma gravação fictícia.
-    const pool = process.env.MYSQL_HOST ? createMysqlPool() : undefined;
-    const entries = pool ? new EntryRepository(pool) : undefined;
+    const mongo = process.env.MONGO_HOST ? await connectMongo() : undefined;
+    const entries = mongo ? new EntryRepository(mongo.db.collection(pcmLineEntriesCollection)) : undefined;
     const server = createServer(createApp(entries));
     server.requestTimeout = 15000;
     server.headersTimeout = 10000;
@@ -17,7 +18,7 @@ export async function startApi(config = readHttpConfig()) {
             server.removeListener('error', reject);
             resolve();
         });
-    }); } catch (error) { await pool?.end(); throw error; }
+    }); } catch (error) { await mongo?.client.close(); throw error; }
     let stopping: Promise<void> | undefined;
     return {
         address: server.address(),
@@ -27,7 +28,7 @@ export async function startApi(config = readHttpConfig()) {
                 deadline.unref();
                 server.close(error => {
                     clearTimeout(deadline);
-                    void (pool?.end() ?? Promise.resolve()).then(() => {
+                    void (mongo?.client.close() ?? Promise.resolve()).then(() => {
                         if (error) reject(error); else resolve();
                     }, reject);
                 });
@@ -39,7 +40,7 @@ export async function startApi(config = readHttpConfig()) {
 // Importar no Electron não inicia outro servidor nem registra sinais de processo.
 if (require.main === module) {
     void startApi().then(api => {
-        console.log('API iniciada. Entrada PCM persiste no MySQL quando configurado; Kafka desativado.', api.address);
+        console.log('API iniciada. Entrada PCM persiste no MongoDB quando configurado; Kafka desativado.', api.address);
         const shutdown = () => { void api.stop().catch(() => { process.exitCode = 1; }); };
         process.once('SIGINT', shutdown);
         process.once('SIGTERM', shutdown);

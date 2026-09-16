@@ -1,7 +1,7 @@
 # Teste CLP — Modbus TCP
 
 Abra **TESTE CLP** na home (`npm run dev`). A tela é independente da bipagem,
-da API e do MySQL. Usa `modbus-serial` no processo principal do Electron.
+da API e do MongoDB. Usa `modbus-serial` no processo principal do Electron.
 Nenhum dado é enviado automaticamente ao abrir a tela.
 
 ## O que pedir ao responsável pela CLP

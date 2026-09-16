@@ -1,31 +1,34 @@
 # Entrada da linha PCM
 
-Fluxo: leitura pelo cliente → API HTTP → validação → INSERT MySQL → resposta.
+Fluxo: leitura pelo cliente → API HTTP → validação → insert MongoDB → resposta.
 Não há tela de scanner, RabbitMQ, Kafka, fila ou WebSocket neste fluxo.
 
-## Preparar MySQL
+## Preparar MongoDB
 
-Requer MySQL 8+ com InnoDB. Crie um banco vazio, por exemplo `pcm`, e um usuário
-com acesso. A migration cria as tabelas dentro desse banco; não cria o servidor,
-o banco ou usuários. Preencha `.env` na raiz:
+Requer MongoDB 6+. Suba o container com `npm run infra:up` (ou `npm run db:up` para
+só o Mongo); o script `docker/mongo-init.js` cria o banco e o usuário de aplicação
+na primeira subida (volume novo). Preencha `.env` na raiz:
 
 ```dotenv
-MYSQL_HOST=127.0.0.1
-MYSQL_PORT=3306
-MYSQL_DATABASE=pcm
-MYSQL_USER=pcm_app
-MYSQL_PASSWORD=sua_senha
+MONGO_HOST=127.0.0.1
+MONGO_PORT=27017
+MONGO_DATABASE=pcm
+MONGO_USER=pcm_app
+MONGO_PASSWORD=sua_senha
 ```
 
-Execute `npm run db:migrate`. A migration `src/database/migrations/001PcmLineEntries.sql`
-cria `pcm_line_entries`; o executor registra a versão em `pcm_schema_migrations`.
-Reexecuções não apagam registros. É necessário permissão de criação de tabelas
-para migrar; a execução normal do endpoint precisa de INSERT na tabela de entradas.
-A migration não é executada automaticamente ao abrir a IHM.
+O índice único de `serialNumber` na collection `pcm_line_entries` é criado
+automaticamente a cada conexão (`connectMongo`, em `src/database/mongo.ts`), lendo
+a definição de `src/modules/pcm/entry/repositories/entryModel.ts`. Isso é idempotente
+e também recria o índice sozinho se a collection for apagada manualmente (ex.: "Drop
+Collection" no Compass ao limpar dados de teste) — não é preciso lembrar de rodar
+nada depois. `npm run db:migrate` continua disponível para garantir o índice sem
+precisar subir a API/IHM inteira (útil antes do primeiro uso).
 
 Inicie `npm run start:api` (somente API) ou `npm run dev` (IHM e API). No portátil,
-o `.env` fica ao lado do `.exe`; prepare o banco com a migration antes de usá-lo.
-Sem MySQL configurado, o novo endpoint retorna 503, mantendo a IHM disponível.
+o `.env` fica ao lado do `.exe`. Sem MongoDB configurado, o novo endpoint retorna
+503, mantendo a IHM disponível. Para limpar dados de teste sem apagar o índice,
+prefira `db.pcm_line_entries.deleteMany({})` a dropar a collection.
 
 ## Registrar leitura
 
@@ -46,24 +49,25 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:3000/api/serial-numbers -Co
 - JSON inválido, tipo de conteúdo e tamanho máximo de 4 KB seguem o contrato da API.
 
 O serial não é convertido nem recalculado. Maiúsculas e minúsculas são distintas.
-Uma restrição UNIQUE no banco rejeita também duplicidades concorrentes. Uma
-instrução INSERT em autocommit grava ID e horário UTC junto ao serial.
+Um índice UNIQUE no banco rejeita também duplicidades concorrentes. Um único
+`insertOne` grava `serialNumber` e `enteredAt` (UTC) em uma única operação atômica.
 Em caso de perda da resposta, a gravação pode ter ocorrido; uma repetição retorna
 409 se o serial já existir. Esse endpoint não inicia as etapas seguintes da linha.
 
-`serial_number` usa VARBINARY para comparação exata. Para consultar:
+`serialNumber` é gravado como string comum. O MongoDB compara e indexa strings de
+forma binária/case-sensitive por padrão (sem `collation`), o que já garante a
+comparação exata sem precisar de um tipo binário. Para consultar:
 
-```sql
-SELECT id, CONVERT(serial_number USING utf8mb4) AS serial_number, entered_at
-FROM pcm_line_entries ORDER BY id DESC;
+```javascript
+db.pcm_line_entries.find().sort({ _id: -1 }).forEach(doc => print(doc.serialNumber, doc.enteredAt));
 ```
 
-O endpoint de bipagem existente agora persiste no MySQL; nao retorna mais sucesso apenas pela validacao.
+O endpoint de bipagem existente agora persiste no MongoDB; nao retorna mais sucesso apenas pela validacao.
 
 ## Testes
 
 `npm run test:pcm`: contrato HTTP, validação, gravação parametrizada, espera da
 confirmação, duplicidade e banco indisponível com dependências substituídas.
-Esses testes não equivalem a executar contra um servidor MySQL real.
+Esses testes não equivalem a executar contra um servidor MongoDB real.
 
-Driver: [MySQL2 com pool e promises](https://sidorares.github.io/node-mysql2/docs/examples/connections/create-pool).
+Driver: [MongoDB Node.js Driver](https://www.mongodb.com/docs/drivers/node/current/).
