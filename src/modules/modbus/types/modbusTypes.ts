@@ -5,4 +5,4 @@ export interface ModbusOptions {
     responseTimeout: number;
 }
 export interface ModbusResult { ok: boolean; message: string; registers?: number[]; text?: string; written?: boolean; }
-export type ModbusAction = 'ping' | 'read' | 'send';
+export type ModbusAction = 'ping' | 'probe' | 'read' | 'send';

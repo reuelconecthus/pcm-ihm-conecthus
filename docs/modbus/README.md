@@ -1,8 +1,45 @@
 # Teste CLP — Modbus TCP
 
+## Simular no próprio PC
+
+1. Em um terminal, execute `npm run simulate:clp` e deixe aberto.
+2. Em outro terminal, execute `npm run dev` e abra **TESTE CLP**.
+3. Informe IP `127.0.0.1` e porta `1502`.
+4. Nas configurações avançadas, use Unit ID `1`, escrita no endereço `0` com
+   `32` registradores e ordem `AB`; resposta no endereço `100`, quantidade `1`,
+   formato número e valor esperado `1`. Os timeouts padrões podem ser mantidos.
+5. Aguarde ONLINE e clique em **ENVIAR E AGUARDAR OK** com o texto de exemplo.
+   O terminal mostra o texto recebido e a tela indica OK.
+6. Antes de repetir, pressione **Enter no terminal do simulador** para zerar
+   a resposta. Sem isso, a tela bloqueia novo envio por OK já presente.
+7. Encerre com **Ctrl+C**; a tela passa a OFFLINE na próxima verificação.
+
+Não precisa de cabo nem CLP física. O simulador aceita apenas conexões do próprio
+PC e aprova qualquer texto não vazio; não executa regras reais de inspeção.
+
 Abra **TESTE CLP** na home (`npm run dev`). A tela é independente da bipagem,
 da API e do MongoDB. Usa `modbus-serial` no processo principal do Electron.
 Nenhum dado é enviado automaticamente ao abrir a tela.
+
+IP, porta e conteúdo do QR code ficam visíveis na tela principal. A seção
+**Configurações avançadas**, inicialmente recolhida, reúne Unit ID, timeout,
+registradores, ordem dos bytes e parâmetros da resposta. Abra essa seção para
+ajustar o mapa da CLP antes do primeiro envio. Recolher a seção mantém os valores
+configurados em uso; os botões de teste e o log continuam disponíveis.
+
+## Indicadores da tela
+
+- **Conexão TCP:** ONLINE (verde), OFFLINE (vermelho) ou não configurado
+  (cinza). Com IP preenchido, verifica a porta automaticamente a cada 3 segundos,
+  com timeout de 1,5 segundo. Não envia dados Modbus nem executa ICMP nessa verificação.
+- **Resposta da CLP:** AGUARDANDO durante o envio, OK (verde) apenas após escrita
+  confirmada e resposta esperada, ou ERRO (vermelho) se o teste falhar.
+  Ler resposta ou executar Ping não aprova um envio.
+
+A verificação automática pausa durante os testes manuais e termina ao sair da
+tela. Ao perder conexão, o OK anterior é removido; reconectar exige novo envio
+para exibir OK novamente. Alterar os campos também invalida o resultado anterior.
+ONLINE confirma acesso TCP, não o processamento do QR code pela CLP.
 
 ## O que pedir ao responsável pela CLP
 
