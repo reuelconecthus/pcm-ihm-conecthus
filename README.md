@@ -1,5 +1,11 @@
 # conecthus.PCM
 
+## Teste de CLP
+
+Na home, **TESTE CLP** abre o teste independente Modbus TCP, com Ping ICMP/TCP,
+envio de texto e consulta de OK. Configure o mapa conforme o
+[guia de teste Modbus](docs/modbus/README.md).
+
 ## Executar todos os testes
 
 Com a API iniciada, a documentação interativa está em

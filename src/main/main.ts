@@ -6,6 +6,7 @@ import { TcpSession } from '../modules/tcp/sessions/tcpSession';
 import { startApi } from '../api/server';
 import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
+import { ModbusTestService } from '../modules/modbus/services/modbusTestService';
 
 let api: Awaited<ReturnType<typeof startApi>> | undefined;
 let shuttingDown = false;
@@ -22,6 +23,11 @@ function createWindow() {
     });
 
     const session = new TcpSession();
+    const modbus = new ModbusTestService();
+    ipcMain.handle('modbus:execute', (event, action, options) => {
+        if (event.sender !== window.webContents) throw new Error('Janela inválida.');
+        return modbus.execute(action, options);
+    });
     const tcp = new TcpService((event) => {
         const entry = session.record(event);
         if (!window.isDestroyed()) window.webContents.send('tcp:event', entry);
@@ -60,6 +66,8 @@ function createWindow() {
         return session.clear();
     });
     window.on('closed', () => {
+        modbus.dispose();
+        ipcMain.removeHandler('modbus:execute');
         tcp.disconnect();
         ipcMain.removeHandler(connectChannel);
         ipcMain.removeHandler('tcp:disconnect');
