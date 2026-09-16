@@ -4,6 +4,12 @@ Abra **TESTE CLP** na home (`npm run dev`). A tela é independente da bipagem,
 da API e do MySQL. Usa `modbus-serial` no processo principal do Electron.
 Nenhum dado é enviado automaticamente ao abrir a tela.
 
+IP, porta e conteúdo do QR code ficam visíveis na tela principal. A seção
+**Configurações avançadas**, inicialmente recolhida, reúne Unit ID, timeout,
+registradores, ordem dos bytes e parâmetros da resposta. Abra essa seção para
+ajustar o mapa da CLP antes do primeiro envio. Recolher a seção mantém os valores
+configurados em uso; os botões de teste e o log continuam disponíveis.
+
 ## O que pedir ao responsável pela CLP
 
 Modbus não define um comando universal para enviar QR code ou receber OK.
