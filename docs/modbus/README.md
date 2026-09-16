@@ -1,5 +1,22 @@
 # Teste CLP — Modbus TCP
 
+## Simular no próprio PC
+
+1. Em um terminal, execute `npm run simulate:clp` e deixe aberto.
+2. Em outro terminal, execute `npm run dev` e abra **TESTE CLP**.
+3. Informe IP `127.0.0.1` e porta `1502`.
+4. Nas configurações avançadas, use Unit ID `1`, escrita no endereço `0` com
+   `32` registradores e ordem `AB`; resposta no endereço `100`, quantidade `1`,
+   formato número e valor esperado `1`. Os timeouts padrões podem ser mantidos.
+5. Aguarde ONLINE e clique em **ENVIAR E AGUARDAR OK** com o texto de exemplo.
+   O terminal mostra o texto recebido e a tela indica OK.
+6. Antes de repetir, pressione **Enter no terminal do simulador** para zerar
+   a resposta. Sem isso, a tela bloqueia novo envio por OK já presente.
+7. Encerre com **Ctrl+C**; a tela passa a OFFLINE na próxima verificação.
+
+Não precisa de cabo nem CLP física. O simulador aceita apenas conexões do próprio
+PC e aprova qualquer texto não vazio; não executa regras reais de inspeção.
+
 Abra **TESTE CLP** na home (`npm run dev`). A tela é independente da bipagem,
 da API e do MySQL. Usa `modbus-serial` no processo principal do Electron.
 Nenhum dado é enviado automaticamente ao abrir a tela.
