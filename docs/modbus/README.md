@@ -10,6 +10,20 @@ registradores, ordem dos bytes e parâmetros da resposta. Abra essa seção para
 ajustar o mapa da CLP antes do primeiro envio. Recolher a seção mantém os valores
 configurados em uso; os botões de teste e o log continuam disponíveis.
 
+## Indicadores da tela
+
+- **Conexão TCP:** ONLINE (verde), OFFLINE (vermelho) ou não configurado
+  (cinza). Com IP preenchido, verifica a porta automaticamente a cada 3 segundos,
+  com timeout de 1,5 segundo. Não envia dados Modbus nem executa ICMP nessa verificação.
+- **Resposta da CLP:** AGUARDANDO durante o envio, OK (verde) apenas após escrita
+  confirmada e resposta esperada, ou ERRO (vermelho) se o teste falhar.
+  Ler resposta ou executar Ping não aprova um envio.
+
+A verificação automática pausa durante os testes manuais e termina ao sair da
+tela. Ao perder conexão, o OK anterior é removido; reconectar exige novo envio
+para exibir OK novamente. Alterar os campos também invalida o resultado anterior.
+ONLINE confirma acesso TCP, não o processamento do QR code pela CLP.
+
 ## O que pedir ao responsável pela CLP
 
 Modbus não define um comando universal para enviar QR code ou receber OK.

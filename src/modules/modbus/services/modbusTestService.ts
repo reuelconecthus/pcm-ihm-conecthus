@@ -35,8 +35,8 @@ export class ModbusTestService {
         try {
             if (!options || typeof options.host !== 'string' || !isIP(options.host.trim())) throw new Error('Informe um IP válido da CLP.');
             integer(options.port, 1, 65535, 'Porta'); integer(options.timeout, 100, 10000, 'Timeout');
-            if (action === 'ping') {
-                const icmp = await new Promise<string>(resolve => {
+            if (action === 'ping' || action === 'probe') {
+                const icmp = action === 'probe' ? '' : await new Promise<string>(resolve => {
                     const args = process.platform === 'win32' ? ['-n', '1', '-w', String(options.timeout), options.host.trim()]
                         : ['-c', '1', options.host.trim()];
                     execFile('ping', args, { timeout: options.timeout + 1000, windowsHide: true, maxBuffer: 8192 }, (error, stdout, stderr) => {

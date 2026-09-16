@@ -81,6 +81,24 @@ test('Modbus: leitura isolada não escreve no equipamento', async t => {
     assert.equal(writes.length, 0);
 });
 
+test('Modbus: verificação de disponibilidade abre TCP sem escrever ou confirmar OK da CLP', async t => {
+    const { options, writes } = await simulator(t);
+    const result = await new ModbusTestService().execute('probe', options);
+    assert.equal(result.ok, true, result.message);
+    assert.equal(result.written, undefined);
+    assert.equal(result.registers, undefined);
+    assert.equal(writes.length, 0);
+});
+
+test('Modbus: verificação TCP informa indisponibilidade após servidor encerrar', async () => {
+    const server = net.createServer();
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    const port = server.address().port;
+    await new Promise(resolve => server.close(resolve));
+    const result = await new ModbusTestService().execute('probe', { host: '127.0.0.1', port, timeout: 200 });
+    assert.equal(result.ok, false);
+});
+
 test('Modbus: escrita confirmada sem OK termina com erro e não repete envio', async t => {
     const { options, writes } = await simulator(t, 0, false);
     const result = await new ModbusTestService().execute('send', options);

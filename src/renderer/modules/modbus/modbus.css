@@ -1,4 +1,10 @@
 .main-content{grid-template-columns:250px minmax(0,1fr)}
+.connection-indicators{margin-top:12px;padding:12px;background:#fff;border:2px solid #777}
+.indicator{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:bold;margin:6px 0 12px}
+.indicator::before{content:'';width:12px;height:12px;flex-shrink:0;border-radius:50%;background:#777}
+.indicator[data-state="ok"]::before{background:#218838}
+.indicator[data-state="error"]::before{background:#c62828}
+.indicator[data-state="pending"]::before{background:#d99500}
 .side-panel,.machine-panel,button,input,select,textarea{border-radius:0!important}
 label{display:block;font-size:12px;font-weight:bold;margin-bottom:9px}
 input,select,textarea{display:block;width:100%;padding:7px;border:2px solid #999;background:white;font:14px Arial;margin-top:4px}

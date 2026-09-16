@@ -25,6 +25,12 @@
                 <div class="status-box"><span class="info-label">STATUS</span>
                     <p id="status" role="status">Aguardando teste</p>
                 </div>
+                <div class="connection-indicators" aria-live="polite">
+                    <span class="info-label">CONEXÃO TCP</span>
+                    <p id="connection-status" class="indicator" data-state="idle">NÃO CONFIGURADO</p>
+                    <span class="info-label">RESPOSTA DA CLP</span>
+                    <p id="plc-status" class="indicator" data-state="idle">AGUARDANDO ENVIO</p>
+                </div>
             </aside>
             <section class="machine-panel">
                 <h2 class="machine-header">ENVIO E RESPOSTA DA CLP</h2>
